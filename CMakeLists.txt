@@ -4,6 +4,10 @@ project(raytracer)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
+if(RAYTRACER_SANITIZER)
+    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fsanitize=${RAYTRACER_SANITIZER} -fno-omit-frame-pointer -lasan")
+endif()
+
 set(RAYTRACER_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/include")
 add_library(raytracer-includes INTERFACE)
 target_include_directories(raytracer-includes INTERFACE "${RAYTRACER_INCLUDE_DIR}")

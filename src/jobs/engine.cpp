@@ -1,5 +1,7 @@
 #include <raytracer/jobs/engine.hpp>
 #include <random>
+#include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
 
 using namespace ray::jobs;
 
@@ -8,6 +10,8 @@ Engine::Engine(std::size_t workerThreads, std::size_t jobsPerThread) :
     _randomEngine{std::random_device()()},
     _dist{0, workerThreads}
 {
+    spdlog::debug("Initializing engine with {} workers and {} jobs per worker...", workerThreads, jobsPerThread);
+
     std::size_t jobsPerQueue = jobsPerThread;
     _workers.emplace_back(this, jobsPerQueue, Worker::Mode::Foreground);
 
@@ -16,8 +20,11 @@ Engine::Engine(std::size_t workerThreads, std::size_t jobsPerThread) :
         _workers.emplace_back(this, jobsPerQueue, Worker::Mode::Background);
     }
 
+    spdlog::debug("Engine initialized");
+
     for(auto& worker : _workers)
     {
+        spdlog::debug("Starting worker {}...", worker.threadId());
         worker.run();
     }
 }
@@ -49,14 +56,6 @@ Worker* Engine::findThreadWorker(const std::thread::id threadId)
     return nullptr;
 }
 
-Engine::~Engine()
-{
-    for(auto& worker : _workers)
-    {
-        worker.stop();
-    }
-}
-
 std::size_t Engine::totalJobsRun() const
 {
     std::size_t total = 0;
@@ -64,6 +63,18 @@ std::size_t Engine::totalJobsRun() const
     for(const auto& worker : _workers)
     {
         total += worker.totalJobsRun();
+    }
+
+    return total;
+}
+
+std::size_t Engine::totalJobsAllocated() const
+{
+    std::size_t total = 0;
+
+    for(const auto& worker : _workers)
+    {
+        total += worker.pool().jobs();
     }
 
     return total;

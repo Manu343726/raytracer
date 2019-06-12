@@ -83,7 +83,7 @@ public:
      * Invokes the job function from the caller thread, passing itself as argument
      * for the job function. After executing the function, tries to mark the job as finished.
      */
-    void run();
+    bool run();
 
     /**
      * \brief Checks whether the job and all its child jobs have been run
@@ -93,7 +93,7 @@ public:
     /**
      * \brief Returns the number of children unfinished jobs left
      */
-    std::uint32_t unfinishedChildrenJobs() const;
+    std::int32_t unfinishedChildrenJobs() const;
 
     /**
      * \brief Returns the parent of the job
@@ -122,12 +122,14 @@ public:
      */
     void whenFinished(JobFunction jobFunction);
 
+    std::uintptr_t id() const;
+
 private:
     struct Payload
     {
         JobFunction function;
         Job* parent;
-        std::atomic<std::uint32_t> unfinishedChildrenJobs;
+        std::atomic<std::int32_t> unfinishedChildrenJobs;
     };
 
     Payload _payload;
@@ -163,6 +165,9 @@ public:
     template<typename Data>
     const Data& getData() const
     {
+        static_assert(sizeof(Data) <= JOB_PADDING_SIZE, "Objects of that type do not fit in "
+            "the job data storage");
+
         return *reinterpret_cast<const Data*>(data());
     }
 
@@ -178,6 +183,9 @@ public:
     template<typename Data>
     Data& getData()
     {
+        static_assert(sizeof(Data) <= JOB_PADDING_SIZE, "Objects of that type do not fit in "
+            "the job data storage");
+
         return *reinterpret_cast<Data*>(data());
     }
 
@@ -204,7 +212,7 @@ public:
     template<typename T, typename... Args>
     void constructData(Args&&... args)
     {
-        static_assert(sizeof(T) <= JOB_MAX_PADDING_SIZE, "Objects of that type do not fit in "
+        static_assert(sizeof(T) <= JOB_PADDING_SIZE, "Objects of that type do not fit in "
             "the job data storage");
 
         ray::utils::construct<T>(data(), std::forward<Args>(args)...);

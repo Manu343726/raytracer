@@ -16,8 +16,13 @@ Job::Job(JobFunction jobFunction, Job* parent) :
     }
 }
 
-void Job::run()
+bool Job::run()
 {
+    if(finished())
+    {
+        return false;
+    }
+
     JobFunction jobFunction = _payload.function;
 
     if(jobFunction != nullptr)
@@ -40,24 +45,26 @@ void Job::run()
 
         finish();
     }
+
+    return true;
 }
 
 bool Job::finished() const
 {
-    return _payload.unfinishedChildrenJobs.load(std::memory_order_relaxed) == 0;
+    return _payload.unfinishedChildrenJobs.load(std::memory_order_seq_cst) == 0;
 }
 
 void Job::incrementUnfinishedChildrenJobs()
 {
-    _payload.unfinishedChildrenJobs.fetch_add(1, std::memory_order_relaxed);
+    _payload.unfinishedChildrenJobs.fetch_add(1, std::memory_order_seq_cst);
 }
 
 bool Job::decrementUnfinishedChildrenJobs()
 {
-    return _payload.unfinishedChildrenJobs.fetch_sub(1, std::memory_order_relaxed) - 1 == 0;
+    return _payload.unfinishedChildrenJobs.fetch_sub(1, std::memory_order_seq_cst) == 1;
 }
 
-std::uint32_t Job::unfinishedChildrenJobs() const
+std::int32_t Job::unfinishedChildrenJobs() const
 {
     return _payload.unfinishedChildrenJobs.load(std::memory_order_seq_cst);
 }
@@ -103,4 +110,9 @@ void Job::whenFinished(JobFunction jobFunction)
 JobFunction Job::function() const
 {
     return _payload.function;
+}
+
+std::uintptr_t Job::id() const
+{
+    return reinterpret_cast<std::uintptr_t>(this);
 }

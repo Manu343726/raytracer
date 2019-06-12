@@ -62,8 +62,7 @@ public:
      * \brief Returns the total number of jobs run by the engine
      */
     std::size_t totalJobsRun() const;
-
-    ~Engine();
+    std::size_t totalJobsAllocated() const;
 
     const ray::static_vector<Worker>& workers() const;
 

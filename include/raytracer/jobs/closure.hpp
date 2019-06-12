@@ -14,7 +14,9 @@ template<typename Function>
 class Closure : public Function
 {
 public:
-    using Function::Function;
+    Closure(Function function) :
+        Function{std::move(function)}
+    {}
 
     template<typename... Args>
     void run(Job& job, Args&&... args)

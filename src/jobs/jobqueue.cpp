@@ -1,20 +1,28 @@
 #include <raytracer/jobs/jobqueue.hpp>
+#include <cassert>
+#include <spdlog/spdlog.h>
 
 using namespace ray::jobs;
 
 JobQueue::JobQueue(std::size_t maxJobs) :
-    _jobs{maxJobs},
+    _jobs{maxJobs, nullptr},
     _top{0},
     _bottom{0}
 {}
 
 bool JobQueue::push(Job* job)
 {
-    int bottom = _bottom.load(std::memory_order_acquire);
+        assert(job != nullptr && "Tried to push null job to the work queue");
 
-    if(bottom < static_cast<int>(_jobs.size()))
+    std::size_t bottom = _bottom.load(std::memory_order_acquire);
+
+    if(bottom < _jobs.size())
     {
-        _jobs[bottom] = job;
+        _jobs[bottom % _jobs.size()] = job;
+
+        // Make sure the job is written before publishing the new botton
+        std::atomic_thread_fence(std::memory_order_release);
+
         _bottom.store(bottom + 1, std::memory_order_release);
 
         return true;
@@ -27,29 +35,33 @@ bool JobQueue::push(Job* job)
 
 Job* JobQueue::pop()
 {
-    int bottom = _bottom.load(std::memory_order_acquire);
-    bottom = std::max(0, bottom - 1);
-    _bottom.store(bottom, std::memory_order_release);
-    int top = _top.load(std::memory_order_acquire);
+    std::size_t bottom = _bottom.load(std::memory_order_acquire);
+
+    if(bottom > 0)
+    {
+        bottom = bottom - 1;
+        _bottom.store(bottom, std::memory_order_release);
+    }
+
+    std::atomic_thread_fence(std::memory_order_release);
+
+    std::size_t top = _top.load(std::memory_order_acquire);
 
     if(top <= bottom)
     {
-        Job* job = _jobs[bottom];
+        Job* job = _jobs[bottom % _jobs.size()];
+        //assert(job != nullptr && "null job returned from queue");
 
-        if(top != bottom)
-        {
-            // More than one job left in the queue
-            return job;
-        }
-        else
+        if(top == bottom)
         {
             // This is the last item in the queue. It could happen
             // multiple concurrent access "fight" for this last item.
             // The atomic compare+exchange operation ensures this last item
             // is extracted only once
 
-            int expectedTop = top;
-            int desiredTop = top + 1;
+            std::size_t expectedTop = top;
+            const std::size_t nextTop = top + 1;
+            std::size_t desiredTop = nextTop;
 
             if(!_top.compare_exchange_strong(expectedTop, desiredTop,
                     std::memory_order_acq_rel))
@@ -58,27 +70,36 @@ Job* JobQueue::pop()
                 job = nullptr;
             }
 
-            _bottom.store(top + 1, std::memory_order_release);
-            return job;
+            _bottom.store(nextTop, std::memory_order_release);
         }
+
+        spdlog::debug("JobQueue::pop() returns {} (top: {}, bottom: {})", job->id(), top % _jobs.size(), bottom % _jobs.size());
+        return job;
     }
     else
     {
         // Queue already empty
         _bottom.store(top, std::memory_order_release);
+        spdlog::trace("JobQueue::pop() failed (queue empty. top: {}, bottom: {})", top, bottom);
         return nullptr;
     }
 }
 
 Job* JobQueue::steal()
 {
-    int top = _top.load(std::memory_order_acquire);
-    int bottom = _bottom.load(std::memory_order_acquire);
+    std::size_t top = _top.load(std::memory_order_acquire);
+
+    // Put a barrier here to make sure bottom is read after reading
+    // top
+    std::atomic_thread_fence(std::memory_order_acquire);
+
+    std::size_t bottom = _bottom.load(std::memory_order_acquire);
 
     if(top < bottom)
     {
-        Job* job = _jobs[top];
-        int desiredTop = top + 1;
+        Job* job = _jobs[top % _jobs.size()];
+        const std::size_t nextTop = top + 1;
+        std::size_t desiredTop = nextTop;
 
         if(!_top.compare_exchange_weak(top, desiredTop,
                 std::memory_order_acq_rel))
@@ -89,12 +110,14 @@ Job* JobQueue::steal()
         }
         else
         {
+            spdlog::debug("JobQueue::steal(this: {}) returns {} (top: {}, bottom: {})", reinterpret_cast<void*>(this), job->id(), top, bottom);
             return job;
         }
     }
     else
     {
         // The queue is empty
+        spdlog::trace("JobQueue::steal(this: {}) failed (queue empty. top: {}, bottom: {})", reinterpret_cast<void*>(this), top, bottom);
         return nullptr;
     }
 }

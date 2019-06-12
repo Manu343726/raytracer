@@ -1,5 +1,7 @@
 #include <raytracer/jobs/worker.hpp>
 #include <raytracer/jobs/engine.hpp>
+#include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
 
 using namespace ray::jobs;
 
@@ -7,8 +9,8 @@ Worker::Worker(Engine* engine, std::size_t poolSize, Worker::Mode mode) :
     _workQueue{poolSize},
     _pool{poolSize},
     _engine{engine},
-    _running{false},
     _mode{mode},
+    _state{State::Idle},
     _totalJobsRun{0},
     _totalJobsDiscarded{0},
     _cyclesWithoutJobs{0},
@@ -17,22 +19,28 @@ Worker::Worker(Engine* engine, std::size_t poolSize, Worker::Mode mode) :
 
 void Worker::run()
 {
-    if(_running)
+    if(running())
     {
         return;
     }
 
     auto mainLoop = [this]
     {
-        while(_running)
+        _state = State::Running;
+
+        spdlog::debug("Worker {} started", threadId());
+
+        while(running())
         {
             Job* job = getJob();
 
             if(job != nullptr)
             {
-                job->run();
-                ++_totalJobsRun;
-                _cyclesWithoutJobs = 0;
+                if(job->run())
+                {
+                    ++_totalJobsRun;
+                    _cyclesWithoutJobs = 0;
+                }
             }
             else
             {
@@ -49,19 +57,17 @@ void Worker::run()
     }
     else
     {
+        _state = State::Running;
         _workerThreadId = std::this_thread::get_id();
     }
-
-    _running = true;
-    _state = State::Running;
 }
 
 void Worker::stop()
 {
-    bool expected = true;
-    while(!_running.compare_exchange_weak(expected, false));
+    State expected = State::Running;
+    while(!_state.compare_exchange_weak(expected, State::Stopping));
 
-    _state = State::Stopping;
+    spdlog::debug("Stopping worker {}...", threadId());
     join();
     _state = State::Idle;
 }
@@ -81,7 +87,7 @@ void Worker::join()
 
 bool Worker::running() const
 {
-    return _running;
+    return _state == State::Running;
 }
 
 void Worker::submit(Job* job)
@@ -146,6 +152,7 @@ Job* Worker::getJob()
         {
             if(worker != nullptr)
             {
+                spdlog::trace("Worker {} stealing work from worker {}", threadId(), worker->threadId());
                 return worker->_workQueue.steal();
             }
             else

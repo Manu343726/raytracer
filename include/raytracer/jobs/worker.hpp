@@ -63,7 +63,6 @@ private:
     Engine* _engine;
     std::thread _workerThread;
     std::thread::id _workerThreadId;
-    std::atomic_bool _running;
     Mode _mode;
     std::atomic<State> _state;
     std::size_t _totalJobsRun;

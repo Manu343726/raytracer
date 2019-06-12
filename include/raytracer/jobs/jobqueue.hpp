@@ -23,7 +23,7 @@ public:
 
 private:
     std::vector<Job*> _jobs;
-    std::atomic<int> _top, _bottom;
+    std::atomic<std::size_t> _top, _bottom;
 };
 
 }
