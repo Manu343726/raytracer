@@ -1,0 +1,2 @@
+[requires]
+concurrentqueue/1.0.0@Manu343726/testing
