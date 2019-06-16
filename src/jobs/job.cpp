@@ -1,6 +1,6 @@
 #include <raytracer/jobs/job.hpp>
 
-using namespace ray::jobs;
+using namespace rt::jobs;
 
 Job::Job(JobFunction jobFunction, Job* parent) :
     _payload{

@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace ray
+namespace rt
 {
 
 float vector::operator[](const int i) const
@@ -36,6 +36,42 @@ float& vector::operator[](const channel channel)
     return coords[channel];
 }
 
+vector& vector::operator+=(const vector& other)
+{
+    x += other.x;
+    y += other.y;
+    z += other.z;
+
+    return *this;
+}
+
+vector& vector::operator-=(const vector& other)
+{
+    x -= other.x;
+    y -= other.y;
+    z -= other.z;
+
+    return *this;
+}
+
+vector& vector::operator*=(const float value)
+{
+    x *= value;
+    y *= value;
+    z *= value;
+
+    return *this;
+}
+
+vector& vector::operator/=(const float value)
+{
+    x /= value;
+    y /= value;
+    z /= value;
+
+    return *this;
+}
+
 float vector::length() const
 {
     return std::sqrt(square_length());
@@ -53,7 +89,33 @@ vector vector::normalized() const
 
 bool vector::is_normalized() const
 {
-    return ray::float_equal(square_length(), 1.0f);
+    return rt::float_equal(square_length(), 1.0f);
+}
+
+color color::rgb(const float r, const float g, const float b)
+{
+    return {r, g, b};
+}
+
+color color::random_rgb()
+{
+    return rgb(
+        rt::random(0.0f, 1.0f),
+        rt::random(0.0f, 1.0f),
+        rt::random(0.0f, 1.0f)
+    );
+}
+
+bool operator==(const vector& lhs, const vector& rhs)
+{
+    return rt::float_equal(lhs.x, rhs.x) &&
+           rt::float_equal(lhs.y, rhs.y) &&
+           rt::float_equal(lhs.z, rhs.z);
+}
+
+bool operator!=(const vector& lhs, const vector& rhs)
+{
+    return !(lhs == rhs);
 }
 
 vector operator+(const vector& lhs, const vector& rhs)
@@ -88,22 +150,22 @@ vector operator/(const vector& lhs, const float rhs)
 
 vector clamp(vector vector, const vector::axis axis, const float min, const float max)
 {
-    vector[axis] = ray::clamp(vector[axis], min, max);
+    vector[axis] = rt::clamp(vector[axis], min, max);
 
     return vector;
 }
 
 vector clamp(vector vector, const vector::channel channel, const float min, const float max)
 {
-    return ray::clamp(std::move(vector), static_cast<vector::axis>(channel), min, max);
+    return rt::clamp(std::move(vector), static_cast<vector::axis>(channel), min, max);
 }
 
 vector clamp(const vector& v, const vector& min, const vector& max)
 {
     return {
-        ray::clamp(v.x, min.x, max.x),
-        ray::clamp(v.y, min.y, max.y),
-        ray::clamp(v.z, min.z, max.z)
+        rt::clamp(v.x, min.x, max.x),
+        rt::clamp(v.y, min.y, max.y),
+        rt::clamp(v.z, min.z, max.z)
     };
 }
 

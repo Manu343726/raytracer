@@ -4,7 +4,7 @@
 // Floating-point comparison from GoogleTest framework.
 // See https://stackoverflow.com/a/3423299/1609356
 
-namespace ray
+namespace rt
 {
 
 namespace detail

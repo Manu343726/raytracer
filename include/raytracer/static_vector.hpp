@@ -5,7 +5,7 @@
 #include <vector>
 #include <type_traits>
 
-namespace ray
+namespace rt
 {
 
 template<typename T, typename Allocator = std::allocator<T>>
@@ -38,7 +38,7 @@ public:
         if(_size < _storage.size())
         {
             auto* storage = &_storage[_size++];
-            ray::utils::construct<T>(storage, std::forward<Args>(args)...);
+            rt::utils::construct<T>(storage, std::forward<Args>(args)...);
 
             return true;
         }
@@ -171,7 +171,7 @@ public:
     {
         for(std::size_t i = 0; i < _size; ++i)
         {
-            ray::utils::destroy<T>(&_storage[i]);
+            rt::utils::destroy<T>(&_storage[i]);
         }
     }
 

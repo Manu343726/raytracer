@@ -6,7 +6,7 @@
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
-using namespace ray::jobs;
+using namespace rt::jobs;
 
 std::atomic_size_t jobs_run{0};
 
@@ -22,7 +22,7 @@ void work(Job& job)
 
     while(std::chrono::steady_clock::now() - start < std::chrono::seconds(1))
     {
-        if(i < ray::random(-1.0f, 1.0f) * i)
+        if(i < rt::random(-1.0f, 1.0f) * i)
         {
             i += 1;
         }

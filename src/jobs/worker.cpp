@@ -3,7 +3,7 @@
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
-using namespace ray::jobs;
+using namespace rt::jobs;
 
 Worker::Worker(Engine* engine, std::size_t poolSize, Worker::Mode mode) :
     _workQueue{poolSize},

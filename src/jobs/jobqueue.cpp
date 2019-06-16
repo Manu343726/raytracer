@@ -2,7 +2,7 @@
 #include <cassert>
 #include <spdlog/spdlog.h>
 
-using namespace ray::jobs;
+using namespace rt::jobs;
 
 JobQueue::JobQueue(std::size_t maxJobs) :
     _jobs{maxJobs, nullptr},

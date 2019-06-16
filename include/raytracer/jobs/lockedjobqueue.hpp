@@ -5,7 +5,7 @@
 #include <mutex>
 #include <vector>
 
-namespace ray
+namespace rt
 {
 
 namespace jobs

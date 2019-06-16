@@ -5,7 +5,7 @@
 #include "closure.hpp"
 #include <vector>
 
-namespace ray
+namespace rt
 {
 
 namespace jobs

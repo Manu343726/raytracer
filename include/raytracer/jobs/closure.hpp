@@ -4,7 +4,7 @@
 #include "job.hpp"
 #include <raytracer/utils.hpp>
 
-namespace ray
+namespace rt
 {
 
 namespace jobs
@@ -51,7 +51,7 @@ Job* closure(Job* job, Function function, Job* parent = nullptr)
             // to capture references to the parent closure
             job.whenFinished([](Job& job)
             {
-                ray::utils::destroy(job.getData<Closure<Function>>());
+                rt::utils::destroy(job.getData<Closure<Function>>());
             });
         }
         else
@@ -64,13 +64,13 @@ Job* closure(Job* job, Function function, Job* parent = nullptr)
             // to capture references to the parent closure
             job.whenFinished([](Job& job)
             {
-                ray::utils::destroy(job.getData<std::unique_ptr<Closure<Function>>>());
+                rt::utils::destroy(job.getData<std::unique_ptr<Closure<Function>>>());
             });
         }
     };
 
     // Initialize the allocated job:
-    ray::utils::construct<Job>(job, jobFunction, parent);
+    rt::utils::construct<Job>(job, jobFunction, parent);
 
     if constexpr(sizeof(Closure<Function>) <= Job::maxDataSize())
     {
@@ -79,6 +79,7 @@ Job* closure(Job* job, Function function, Job* parent = nullptr)
     }
     else
     {
+        static_assert(sizeof(Function) != sizeof(Function));
         // The closure object does not fit in the job payload,
         // dynamically allocate it:
         job->constructData<std::unique_ptr<Closure<Function>>>(std::make_unique<Closure<Function>>(function));

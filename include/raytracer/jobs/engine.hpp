@@ -5,7 +5,7 @@
 #include <random>
 #include <raytracer/static_vector.hpp>
 
-namespace ray
+namespace rt
 {
 
 namespace jobs
@@ -64,10 +64,10 @@ public:
     std::size_t totalJobsRun() const;
     std::size_t totalJobsAllocated() const;
 
-    const ray::static_vector<Worker>& workers() const;
+    const rt::static_vector<Worker>& workers() const;
 
 private:
-    ray::static_vector<Worker> _workers;
+    rt::static_vector<Worker> _workers;
     std::default_random_engine _randomEngine;
     std::uniform_int_distribution<std::size_t> _dist;
 };

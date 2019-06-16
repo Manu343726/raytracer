@@ -3,7 +3,7 @@
 
 #include <utility>
 
-namespace ray
+namespace rt
 {
 
 namespace utils

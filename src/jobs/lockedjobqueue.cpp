@@ -1,6 +1,6 @@
 #include <raytracer/jobs/lockedjobqueue.hpp>
 
-using namespace ray::jobs;
+using namespace rt::jobs;
 
 LockedJobQueue::LockedJobQueue(std::size_t maxJobs) :
     _jobs{maxJobs},

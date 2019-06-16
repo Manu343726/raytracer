@@ -3,7 +3,7 @@
 #include <random>
 #include "float.hpp"
 
-namespace ray
+namespace rt
 {
 
 float clamp(const float value, const float min, const float max)
@@ -13,13 +13,13 @@ float clamp(const float value, const float min, const float max)
 
 bool float_equal(const float lhs, const float rhs)
 {
-    return ray::detail::FloatingPoint<float>{lhs}.AlmostEquals(
-        ray::detail::FloatingPoint<float>{rhs});
+    return rt::detail::FloatingPoint<float>{lhs}.AlmostEquals(
+        rt::detail::FloatingPoint<float>{rhs});
 }
 
 bool float_not_equal(const float lhs, const float rhs)
 {
-    return !ray::float_equal(lhs, rhs);
+    return !rt::float_equal(lhs, rhs);
 }
 
 float random(const float min, const float max)

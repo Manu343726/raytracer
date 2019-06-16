@@ -9,7 +9,7 @@
 #include <thread>
 #include <new>
 
-namespace ray
+namespace rt
 {
 
 namespace jobs
@@ -215,7 +215,7 @@ public:
         static_assert(sizeof(T) <= JOB_PADDING_SIZE, "Objects of that type do not fit in "
             "the job data storage");
 
-        ray::utils::construct<T>(data(), std::forward<Args>(args)...);
+        rt::utils::construct<T>(data(), std::forward<Args>(args)...);
     }
 
     /**
@@ -223,7 +223,7 @@ public:
      */
     static constexpr std::size_t maxDataSize()
     {
-        return JOB_PAYLOAD_SIZE;
+        return JOB_PADDING_SIZE;
     }
 };
 

@@ -1,6 +1,6 @@
 #include <raytracer/jobs/pool.hpp>
 
-using namespace ray::jobs;
+using namespace rt::jobs;
 
 Pool::Pool(std::size_t maxJobs) :
     _storage{maxJobs},

@@ -1,7 +1,7 @@
 #ifndef RAYTRACER_MATH_HPP_INCLUDED
 #define RAYTRACER_MATH_HPP_INCLUDED
 
-namespace ray
+namespace rt
 {
 
 float clamp(const float value, const float min, const float max);

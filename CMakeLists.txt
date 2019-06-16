@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 if(RAYTRACER_SANITIZER)
-    set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fsanitize=${RAYTRACER_SANITIZER} -fno-omit-frame-pointer -lasan")
+    message(STATUS "Raytracer project built with -fsanitize=${RAYTRACER_SANITIZER}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -fsanitize=${RAYTRACER_SANITIZER} -fno-omit-frame-pointer -lasan")
 endif()
 
 set(RAYTRACER_INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/include")
@@ -22,3 +23,8 @@ else()
 endif()
 
 add_subdirectory(src)
+
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/.ycm_extra_conf.py.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/.ycm_extra_conf.py
+)

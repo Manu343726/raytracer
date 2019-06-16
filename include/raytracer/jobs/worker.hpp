@@ -8,7 +8,7 @@
 #include <thread>
 #include <atomic>
 
-namespace ray
+namespace rt
 {
 
 namespace jobs
@@ -16,7 +16,7 @@ namespace jobs
 
 class Engine;
 
-using WorkQueue = ray::jobs::JobQueue;
+using WorkQueue = rt::jobs::JobQueue;
 
 /**
  * \ingroup jobs

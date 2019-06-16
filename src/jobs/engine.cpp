@@ -3,7 +3,7 @@
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
-using namespace ray::jobs;
+using namespace rt::jobs;
 
 Engine::Engine(std::size_t workerThreads, std::size_t jobsPerThread) :
     _workers{workerThreads},
@@ -94,7 +94,7 @@ Worker* Engine::threadWorker()
     return worker;
 }
 
-const ray::static_vector<Worker>& Engine::workers() const
+const rt::static_vector<Worker>& Engine::workers() const
 {
     return _workers;
 }
