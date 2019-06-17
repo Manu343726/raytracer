@@ -6,15 +6,14 @@ namespace rt
 
 struct vector
 {
-    union
-    {
+    union {
         struct
         {
-            float x,y,z;
+            float x, y, z;
         };
         struct
         {
-            float r,g,b;
+            float r, g, b;
         };
         struct
         {
@@ -32,9 +31,9 @@ struct vector
 
     enum channel
     {
-        R=X,
-        G=Y,
-        B=Z
+        R = X,
+        G = Y,
+        B = Z
     };
 
     using color = vector;
@@ -52,9 +51,9 @@ struct vector
     vector& operator*=(const float value);
     vector& operator/=(const float value);
 
-    float length() const;
-    float square_length() const;
-    bool is_normalized() const;
+    float  length() const;
+    float  square_length() const;
+    bool   is_normalized() const;
     vector normalized() const;
 
     static vector x_axis();
@@ -66,6 +65,7 @@ struct vector
 
     static color rgb(const float r, const float g, const float b);
     static color hsv(const float h, const float s, const float v);
+    static color hsv(const float value);
     static color random_rgb();
 };
 
@@ -77,11 +77,13 @@ bool operator!=(const vector& lhs, const vector& rhs);
 vector operator+(const vector& lhs, const vector& rhs);
 vector operator-(const vector& lhs, const vector& rhs);
 float  operator*(const vector& lhs, const vector& rhs);
-vector operator*(const float lhs,   const vector& rhs);
+vector operator*(const float lhs, const vector& rhs);
 vector operator*(const vector& lhs, const float rhs);
 vector operator/(const vector& lhs, const float rhs);
-vector clamp(vector v, const vector::axis axis,       const float min, const float max);
-color  clamp(color v, const color::channel channel, const float min, const float max);
+vector
+      clamp(vector v, const vector::axis axis, const float min, const float max);
+color clamp(
+    color v, const color::channel channel, const float min, const float max);
 vector clamp(const vector& v, const vector& min, const vector& max);
 vector reflect(const vector& v, const vector& axis);
 

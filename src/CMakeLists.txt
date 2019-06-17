@@ -1,17 +1,11 @@
-add_library(raytracer-lib
-    math.cpp
-    vector.cpp
-    canvas.cpp
-    ray.cpp
-)
-
 add_subdirectory(jobs)
+add_subdirectory(lib)
+add_subdirectory(runtime)
 
-target_link_libraries(raytracer-lib
-    PUBLIC raytracer-includes
-    PUBLIC CONAN_PKG::spdlog
-    PRIVATE raytracer-jobs)
+function(raytracer_exec NAME)
+    add_executable(${NAME} ${NAME}.cpp)
+    target_link_libraries(${NAME} PRIVATE raytracer-runtime)
+endfunction()
 
-add_executable(raytracer main.cpp)
-target_link_libraries(raytracer
-    PRIVATE raytracer-lib)
+raytracer_exec(raytracer)
+raytracer_exec(mandelbrot)

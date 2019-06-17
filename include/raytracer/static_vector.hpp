@@ -2,8 +2,8 @@
 #define RAYTRACER_STATICVECTOR_HPP
 
 #include <raytracer/utils.hpp>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 namespace rt
 {
@@ -11,19 +11,16 @@ namespace rt
 template<typename T, typename Allocator = std::allocator<T>>
 class static_vector
 {
-    using storage = std::aligned_storage_t<sizeof(T), alignof(T)>;
-    using vector  = std::vector<storage, Allocator>;
-    using vectoriterator = typename vector::iterator;
+    using storage             = std::aligned_storage_t<sizeof(T), alignof(T)>;
+    using vector              = std::vector<storage, Allocator>;
+    using vectoriterator      = typename vector::iterator;
     using Constvectoriterator = typename vector::const_iterator;
 
 public:
-    explicit static_vector(std::size_t maxSize) :
-        _storage{maxSize},
-        _size{0}
-    {}
+    explicit static_vector(std::size_t maxSize) : _storage{maxSize}, _size{0} {}
 
     static_vector(const static_vector&) = delete;
-    static_vector(static_vector&&) = delete;
+    static_vector(static_vector&&)      = delete;
     static_vector& operator=(const static_vector&) = delete;
     static_vector& operator=(static_vector&&) = delete;
 
@@ -53,13 +50,14 @@ public:
     {
     public:
         using iterator_category = std::random_access_iterator_tag;
-        using value_type = ValueType;
-        using reference_type = std::add_lvalue_reference_t<ValueType>;
-        using pointer_type = std::add_pointer_t<ValueType>;
+        using value_type        = ValueType;
+        using reference_type    = std::add_lvalue_reference_t<ValueType>;
+        using pointer_type      = std::add_pointer_t<ValueType>;
 
-        explicit iterator_t(StorageIterator storageiterator) :
-            _storageiterator{storageiterator}
-        {}
+        explicit iterator_t(StorageIterator storageiterator)
+            : _storageiterator{storageiterator}
+        {
+        }
 
         reference_type operator*() const
         {
@@ -124,7 +122,7 @@ public:
         StorageIterator _storageiterator;
     };
 
-    using iterator = iterator_t<T, vectoriterator>;
+    using iterator       = iterator_t<T, vectoriterator>;
     using const_iterator = iterator_t<const T, Constvectoriterator>;
 
     iterator begin()
@@ -176,10 +174,10 @@ public:
     }
 
 private:
-    vector _storage;
+    vector      _storage;
     std::size_t _size;
 };
 
-}
+} // namespace rt
 
 #endif // RAYTRACER_STATICVECTOR_HPP
