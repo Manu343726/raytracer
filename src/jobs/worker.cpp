@@ -1,22 +1,27 @@
-#include <raytracer/jobs/worker.hpp>
-#include <raytracer/jobs/engine.hpp>
 #include <fmt/ostream.h>
+#include <raytracer/jobs/engine.hpp>
+#include <raytracer/jobs/worker.hpp>
 #include <spdlog/spdlog.h>
 
 using namespace rt::jobs;
 
-Worker::Worker(const std::uint64_t id, Engine* engine, std::size_t poolSize, Worker::Mode mode) :
-    _workQueue{poolSize},
-    _pool{poolSize},
-    _engine{engine},
-    _mode{mode},
-    _state{State::Idle},
-    _totalJobsRun{0},
-    _totalJobsDiscarded{0},
-    _cyclesWithoutJobs{0},
-    _maxCyclesWithoutJobs{0},
-    _id{id}
-{}
+Worker::Worker(
+    const std::uint64_t id,
+    Engine*             engine,
+    std::size_t         poolSize,
+    Worker::Mode        mode)
+    : _workQueue{poolSize + 1},
+      _pool{poolSize},
+      _engine{engine},
+      _mode{mode},
+      _state{State::Idle},
+      _totalJobsRun{0},
+      _totalJobsDiscarded{0},
+      _cyclesWithoutJobs{0},
+      _maxCyclesWithoutJobs{0},
+      _id{id}
+{
+}
 
 void Worker::run()
 {
@@ -25,8 +30,7 @@ void Worker::run()
         return;
     }
 
-    auto mainLoop = [this]
-    {
+    auto mainLoop = [this] {
         _state = State::Running;
 
         spdlog::debug("Background worker {} started", id());
@@ -46,19 +50,20 @@ void Worker::run()
             else
             {
                 ++_cyclesWithoutJobs;
-                _maxCyclesWithoutJobs = std::max(_cyclesWithoutJobs, _maxCyclesWithoutJobs);
+                _maxCyclesWithoutJobs =
+                    std::max(_cyclesWithoutJobs, _maxCyclesWithoutJobs);
             }
         }
     };
 
     if(_mode == Mode::Background)
     {
-        _workerThread = std::thread{mainLoop};
+        _workerThread   = std::thread{mainLoop};
         _workerThreadId = _workerThread.get_id();
     }
     else
     {
-        _state = State::Running;
+        _state          = State::Running;
         _workerThreadId = std::this_thread::get_id();
 
         spdlog::debug("Foreground worker {} started", id());
@@ -68,15 +73,17 @@ void Worker::run()
 void Worker::stop()
 {
     State expected = State::Running;
-    while(!_state.compare_exchange_weak(expected, State::Stopping));
+    while(!_state.compare_exchange_weak(expected, State::Stopping))
+        ;
 
     spdlog::debug("Stopping worker {}...", id());
     join();
     _state = State::Idle;
-    spdlog::debug("Worker {0} stopped ({1} jobs were allocated [{2}%], {3} jobs were run, {4} jobs discarded, {5} max idle cycles)",
+    spdlog::debug(
+        "Worker {0} stopped ({1} jobs were allocated [{2}%], {3} jobs were run, {4} jobs discarded, {5} max idle cycles)",
         id(),
         pool().jobs(),
-        pool().jobsFactor()*100,
+        pool().jobsFactor() * 100,
         totalJobsRun(),
         totalJobsDiscarded(),
         maxCyclesWithoutJobs());
@@ -124,7 +131,8 @@ void Worker::wait(Job* waitJob)
         else
         {
             ++_cyclesWithoutJobs;
-            _maxCyclesWithoutJobs = std::max(_cyclesWithoutJobs, _maxCyclesWithoutJobs);
+            _maxCyclesWithoutJobs =
+                std::max(_cyclesWithoutJobs, _maxCyclesWithoutJobs);
         }
     }
 }
@@ -162,13 +170,16 @@ Job* Worker::getJob()
         {
             if(worker != nullptr)
             {
-                spdlog::trace("Worker {} stealing work from worker {}", id(), worker->id());
+                spdlog::trace(
+                    "Worker {} stealing work from worker {}",
+                    id(),
+                    worker->id());
                 return worker->_workQueue.steal();
             }
             else
             {
-               std::this_thread::yield();
-               return nullptr;
+                std::this_thread::yield();
+                return nullptr;
             }
         }
     }

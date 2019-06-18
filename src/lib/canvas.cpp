@@ -1,6 +1,9 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <spdlog/spdlog.h>
+
 #include <fstream>
+
 #include <raytracer/canvas.hpp>
 #include <raytracer/jobs/engine.hpp>
 
@@ -70,11 +73,16 @@ std::size_t canvas::pixel_count() const
     return _width * _height;
 }
 
-void canvas::foreach(canvas::pixel_function function, const void* constants, const std::size_t threads)
+void canvas::foreach(
+    canvas::pixel_function          function,
+    const void*                     constants,
+    const std::size_t               threads,
+    const std::vector<std::size_t>& jobsPerThread)
 {
-    rt::jobs::Engine engine{threads, pixel_count()};
-    const float      x_ratio      = 1.0f / _width;
-    const float      y_ratio      = 1.0f / _height;
+    rt::jobs::Engine engine{threads, jobsPerThread, pixel_count()};
+    const auto       start   = std::chrono::high_resolution_clock::now();
+    const float      x_ratio = 1.0f / _width;
+    const float      y_ratio = 1.0f / _height;
 
     auto* worker = engine.threadWorker();
 
@@ -100,4 +108,10 @@ void canvas::foreach(canvas::pixel_function function, const void* constants, con
 
     worker->submit(root);
     worker->wait(root);
+
+    const auto elapsed = std::chrono::high_resolution_clock::now() - start;
+
+    spdlog::info(
+        "elapsed time: {} ms",
+        std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
 }

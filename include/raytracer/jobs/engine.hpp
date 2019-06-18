@@ -30,7 +30,13 @@ public:
      * thread. Once this limit is reached, the worker stops returning storage
      * for more jobs, which means no more jobs can be submitted to the worker.
      */
-    Engine(std::size_t workerThreads, std::size_t jobsPerThread);
+    Engine(
+        const std::size_t               workerThreads,
+        const std::vector<std::size_t>& jobsPerThread,
+        const std::size_t               fallbackJobsPerThread);
+
+    Engine(const std::size_t workerThreads, const std::size_t jobsPerThread);
+
     Engine(const Engine&) = delete;
 
     /**
@@ -67,13 +73,13 @@ public:
     const rt::static_vector<Worker>& workers() const;
 
 private:
-    rt::static_vector<Worker> _workers;
-    std::default_random_engine _randomEngine;
+    rt::static_vector<Worker>                  _workers;
+    std::default_random_engine                 _randomEngine;
     std::uniform_int_distribution<std::size_t> _dist;
 };
 
-}
+} // namespace jobs
 
-}
+} // namespace rt
 
 #endif // RAYTRACER_JOBS_ENGINE_HPP

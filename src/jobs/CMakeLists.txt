@@ -11,7 +11,6 @@ add_library(raytracer-jobs
 
 target_link_libraries(raytracer-jobs PUBLIC
     raytracer-includes
-    raytracer-lib
     CONAN_PKG::spdlog
     ${CMAKE_THREAD_LIBS_INIT}
 )

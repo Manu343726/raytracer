@@ -1,22 +1,44 @@
-#include <raytracer/jobs/engine.hpp>
-#include <random>
 #include <fmt/ostream.h>
+#include <random>
+#include <raytracer/jobs/engine.hpp>
 #include <spdlog/spdlog.h>
 
 using namespace rt::jobs;
 
-Engine::Engine(std::size_t workerThreads, std::size_t jobsPerThread) :
-    _workers{workerThreads},
-    _randomEngine{std::random_device()()},
-    _dist{0, workerThreads}
+Engine::Engine(
+    const std::size_t               workerThreads,
+    const std::vector<std::size_t>& jobsPerThread,
+    const std::size_t               fallbackJobsPerThread)
+    : _workers{workerThreads},
+      _randomEngine{std::random_device()()},
+      _dist{0, workerThreads}
 {
-    spdlog::debug("Initializing engine with {} workers and {} jobs per worker...", workerThreads, jobsPerThread);
+    spdlog::debug(
+        "Initializing engine with {} workers and [{}] jobs per worker...",
+        workerThreads,
+        fmt::join(jobsPerThread, ", "));
 
-    std::size_t jobsPerQueue = jobsPerThread;
+    std::size_t jobsPerQueue = fallbackJobsPerThread;
+
+    if(jobsPerThread.size() > 0)
+    {
+        jobsPerQueue = static_cast<std::size_t>(jobsPerThread[0]);
+    }
+
     _workers.emplace_back(0ull, this, jobsPerQueue, Worker::Mode::Foreground);
 
     for(std::size_t i = 1; i < workerThreads; ++i)
     {
+
+        if(jobsPerThread.size() > i)
+        {
+            jobsPerQueue = static_cast<std::size_t>(jobsPerThread[i]);
+        }
+        else
+        {
+            jobsPerQueue = fallbackJobsPerThread;
+        }
+
         _workers.emplace_back(i, this, jobsPerQueue, Worker::Mode::Background);
     }
 
@@ -27,6 +49,13 @@ Engine::Engine(std::size_t workerThreads, std::size_t jobsPerThread) :
         spdlog::debug("Starting worker {}...", worker.id());
         worker.run();
     }
+}
+
+Engine::Engine(const std::size_t workerThreads, const std::size_t jobsPerThread)
+    : Engine{workerThreads,
+             std::vector<std::size_t>(workerThreads, jobsPerThread),
+             jobsPerThread}
+{
 }
 
 Worker* Engine::randomWorker()
@@ -83,7 +112,8 @@ std::size_t Engine::totalJobsAllocated() const
 Worker* Engine::threadWorker()
 {
     static thread_local Engine* engine = this;
-    static thread_local Worker* worker = findThreadWorker(std::this_thread::get_id());
+    static thread_local Worker* worker =
+        findThreadWorker(std::this_thread::get_id());
 
     if(engine != this)
     {

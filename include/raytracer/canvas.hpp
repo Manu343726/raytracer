@@ -36,28 +36,37 @@ public:
 
     void foreach(
         pixel_function    function,
-        const void* constants = nullptr,
-        const std::size_t threads = std::thread::hardware_concurrency());
+        const void*       constants = nullptr,
+        const std::size_t threads   = std::thread::hardware_concurrency(),
+        const std::vector<std::size_t>& jobsPerThread = {});
 
     template<typename Constants>
     void foreach(
         generic_pixel_function<const Constants&> function,
-        const Constants& constants,
-        std::size_t threads = std::thread::hardware_concurrency())
+        const Constants&                         constants,
+        std::size_t threads = std::thread::hardware_concurrency(),
+        const std::vector<std::size_t>& jobsPerThread = {})
     {
         struct data_t
         {
             generic_pixel_function<const Constants&> function;
-            const Constants* constants;
+            const Constants*                         constants;
         };
 
         const data_t data{function, &constants};
 
-        foreach([](const float x, const float y, const void* payload, rt::color& pixel)
-        {
-            const auto& data = *reinterpret_cast<const data_t*>(payload);
-            data.function(x, y, *data.constants, pixel);
-        }, &data, threads);
+        foreach(
+            [](const float x,
+               const float y,
+               const void* payload,
+               rt::color&  pixel) {
+                const auto& data = *reinterpret_cast<const data_t*>(payload);
+                data.function(x, y, *data.constants, pixel);
+            },
+            &data,
+            threads,
+            jobsPerThread)
+            ;
     }
 
 
