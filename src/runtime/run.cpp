@@ -6,6 +6,7 @@
 
 #include <raytracer/canvas.hpp>
 #include <raytracer/kernel.hpp>
+#include <raytracer/runtime/options_parser.hpp>
 #include <raytracer/runtime/settings.hpp>
 #include <raytracer/kernel.hpp.tinyrefl>
 #include <raytracer/runtime/settings.hpp.tinyrefl>
@@ -66,18 +67,11 @@ void kernel_runner(const rt::runtime::settings& settings)
 
 int run(int argc, const char** argv)
 {
-    cxxopts::Options options{"raytracer-client", "raytracer lib client"};
+    auto options = rt::runtime::generate_options<rt::runtime::settings>(
+        "raytracer-client", "raytracer lib client");
     // clang-format off
     options.add_options()
         ("help", "Display this help and exit")
-        ("t,threads", "Number of job engine parallel threads", cxxopts::value<std::size_t>())
-        ("l,log-level", "Logging level (TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL, OFF)", cxxopts::value<std::string>())
-        ("i,iterations", "Number of iterations", cxxopts::value<std::size_t>())
-        ("s,samples", "Samples per pixel", cxxopts::value<std::size_t>())
-        ("w,width", "Width of the output image in pixels (default: 800)", cxxopts::value<std::size_t>())
-        ("h,height", "Height of the ouput image in pixels (default: 600)", cxxopts::value<std::size_t>())
-        ("aspect-ratio", "Aspect ratio used by the renderer (default: width/height)", cxxopts::value<float>())
-        ("f,output-file", "Output image file (default: output.ppm)", cxxopts::value<std::string>())
         ("c,config-file", "Full path to the configuration JSON file", cxxopts::value<std::string>());
     // clang-format on
 
@@ -117,53 +111,7 @@ int run(int argc, const char** argv)
             configure_log_level(args["log-level"].as<std::string>());
         }
 
-        if(args.count("threads"))
-        {
-            settings.threads = args["threads"].as<std::size_t>();
-        }
-
-        if(args.count("output-file"))
-        {
-            settings.output_file = args["output-file"].as<std::string>();
-        }
-
-        if(args.count("iterations"))
-        {
-            settings.kernel_constants.iterations =
-                args["iterations"].as<std::size_t>();
-        }
-
-        if(args.count("samples"))
-        {
-            settings.kernel_constants.samples_per_pixel =
-                args["samples"].as<std::size_t>();
-        }
-
-        if(args.count("width"))
-        {
-            settings.kernel_constants.screen_width =
-                args["width"].as<std::size_t>();
-        }
-
-        if(args.count("height"))
-        {
-            settings.kernel_constants.screen_height =
-                args["height"].as<std::size_t>();
-        }
-
-        if(args.count("aspect-ratio"))
-        {
-            settings.kernel_constants.aspect_ratio =
-                args["aspect-ratio"].as<float>();
-        }
-        else
-        {
-            spdlog::debug("Using default aspect ratio");
-
-            settings.kernel_constants.aspect_ratio =
-                static_cast<float>(settings.kernel_constants.screen_width) /
-                settings.kernel_constants.screen_height;
-        }
+        rt::runtime::apply_options(args, settings);
 
         kernel_runner(settings);
 

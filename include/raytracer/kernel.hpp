@@ -13,11 +13,40 @@ namespace rt
 
 struct kernel_constants
 {
-    std::size_t iterations        = 1;
+    // clang-format off
+
+    [[
+        rt::short_name("i"),
+        rt::description("Number of iterations (default: 1)")
+    ]]
+    std::size_t iterations = 1;
+
+    [[
+        rt::short_name("s"),
+        rt::name("samples"),
+        rt::description("Semples per pixel (default: 1)")
+    ]]
     std::size_t samples_per_pixel = 1;
-    std::size_t screen_width      = 800;
-    std::size_t screen_height     = 600;
-    float       aspect_ratio      = 800.0f / 600.0f;
+
+    [[
+        rt::short_name("w"),
+        rt::name("width"),
+        rt::description("Width of the output image in pixels (default: 800)")
+    ]]
+    std::size_t screen_width = 800;
+
+    [[
+        rt::short_name("h"),
+        rt::name("height"),
+        rt::description("Height of the output image in pixels (default: 600)")
+    ]]
+    std::size_t screen_height = 600;
+
+    [[rt::description(
+        "Aspect ratio used by the renderer (default: width/height)")]]
+    float aspect_ratio = 800.0f / 600.0f;
+
+    // clang-format on
 };
 
 } // namespace rt
