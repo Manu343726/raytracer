@@ -73,7 +73,7 @@ Job* JobQueue::pop()
             _bottom.store(nextTop, std::memory_order_release);
         }
 
-        spdlog::debug("JobQueue::pop() returns {} (top: {}, bottom: {})", job->id(), top % _jobs.size(), bottom % _jobs.size());
+        spdlog::trace("JobQueue::pop() returns {} (top: {}, bottom: {})", job->id(), top % _jobs.size(), bottom % _jobs.size());
         return job;
     }
     else
@@ -110,7 +110,7 @@ Job* JobQueue::steal()
         }
         else
         {
-            spdlog::debug("JobQueue::steal(this: {}) returns {} (top: {}, bottom: {})", reinterpret_cast<void*>(this), job->id(), top, bottom);
+            spdlog::trace("JobQueue::steal(this: {}) returns {} (top: {}, bottom: {})", reinterpret_cast<void*>(this), job->id(), top, bottom);
             return job;
         }
     }

@@ -38,9 +38,10 @@ public:
         Stopping
     };
 
-    Worker(Engine* engine, std::size_t poolSize, Mode mode = Mode::Background);
+    Worker(const std::uint64_t id, Engine* engine, std::size_t poolSize, Mode mode = Mode::Background);
     ~Worker();
 
+    std::uint64_t id() const;
     std::thread::id threadId() const;
     bool running() const;
     void run();
@@ -69,6 +70,7 @@ private:
     std::size_t _totalJobsDiscarded;
     std::size_t _cyclesWithoutJobs;
     std::size_t _maxCyclesWithoutJobs;
+    std::uint64_t _id;
 
     Job* getJob();
     void getJobs();

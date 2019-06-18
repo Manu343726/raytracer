@@ -25,15 +25,41 @@ public:
 
     void dump_to_file(const std::string& filename) const;
 
-    using pixel_function = void (*)(
+    template<typename Constants>
+    using generic_pixel_function = void (*)(
         const float /*x*/,
         const float /*y*/,
-        const float /*aspect_ratio*/,
+        Constants /*constants*/,
         color& /*pixel*/);
+
+    using pixel_function = generic_pixel_function<const void*>;
 
     void foreach(
         pixel_function    function,
+        const void* constants = nullptr,
         const std::size_t threads = std::thread::hardware_concurrency());
+
+    template<typename Constants>
+    void foreach(
+        generic_pixel_function<const Constants&> function,
+        const Constants& constants,
+        std::size_t threads = std::thread::hardware_concurrency())
+    {
+        struct data_t
+        {
+            generic_pixel_function<const Constants&> function;
+            const Constants* constants;
+        };
+
+        const data_t data{function, &constants};
+
+        foreach([](const float x, const float y, const void* payload, rt::color& pixel)
+        {
+            const auto& data = *reinterpret_cast<const data_t*>(payload);
+            data.function(x, y, *data.constants, pixel);
+        }, &data, threads);
+    }
+
 
 private:
     const std::size_t      _width, _height;

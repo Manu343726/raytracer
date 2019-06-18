@@ -5,7 +5,7 @@
 
 using namespace rt::jobs;
 
-Worker::Worker(Engine* engine, std::size_t poolSize, Worker::Mode mode) :
+Worker::Worker(const std::uint64_t id, Engine* engine, std::size_t poolSize, Worker::Mode mode) :
     _workQueue{poolSize},
     _pool{poolSize},
     _engine{engine},
@@ -14,7 +14,8 @@ Worker::Worker(Engine* engine, std::size_t poolSize, Worker::Mode mode) :
     _totalJobsRun{0},
     _totalJobsDiscarded{0},
     _cyclesWithoutJobs{0},
-    _maxCyclesWithoutJobs{0}
+    _maxCyclesWithoutJobs{0},
+    _id{id}
 {}
 
 void Worker::run()
@@ -28,7 +29,7 @@ void Worker::run()
     {
         _state = State::Running;
 
-        spdlog::debug("Worker {} started", threadId());
+        spdlog::debug("Background worker {} started", id());
 
         while(running())
         {
@@ -59,6 +60,8 @@ void Worker::run()
     {
         _state = State::Running;
         _workerThreadId = std::this_thread::get_id();
+
+        spdlog::debug("Foreground worker {} started", id());
     }
 }
 
@@ -67,9 +70,16 @@ void Worker::stop()
     State expected = State::Running;
     while(!_state.compare_exchange_weak(expected, State::Stopping));
 
-    spdlog::debug("Stopping worker {}...", threadId());
+    spdlog::debug("Stopping worker {}...", id());
     join();
     _state = State::Idle;
+    spdlog::debug("Worker {0} stopped ({1} jobs were allocated [{2}%], {3} jobs were run, {4} jobs discarded, {5} max idle cycles)",
+        id(),
+        pool().jobs(),
+        pool().jobsFactor()*100,
+        totalJobsRun(),
+        totalJobsDiscarded(),
+        maxCyclesWithoutJobs());
 }
 
 Worker::~Worker()
@@ -152,7 +162,7 @@ Job* Worker::getJob()
         {
             if(worker != nullptr)
             {
-                spdlog::trace("Worker {} stealing work from worker {}", threadId(), worker->threadId());
+                spdlog::trace("Worker {} stealing work from worker {}", id(), worker->id());
                 return worker->_workQueue.steal();
             }
             else
@@ -162,6 +172,11 @@ Job* Worker::getJob()
             }
         }
     }
+}
+
+std::uint64_t Worker::id() const
+{
+    return _id;
 }
 
 std::thread::id Worker::threadId() const

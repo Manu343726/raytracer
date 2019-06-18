@@ -13,18 +13,18 @@ Engine::Engine(std::size_t workerThreads, std::size_t jobsPerThread) :
     spdlog::debug("Initializing engine with {} workers and {} jobs per worker...", workerThreads, jobsPerThread);
 
     std::size_t jobsPerQueue = jobsPerThread;
-    _workers.emplace_back(this, jobsPerQueue, Worker::Mode::Foreground);
+    _workers.emplace_back(0ull, this, jobsPerQueue, Worker::Mode::Foreground);
 
     for(std::size_t i = 1; i < workerThreads; ++i)
     {
-        _workers.emplace_back(this, jobsPerQueue, Worker::Mode::Background);
+        _workers.emplace_back(i, this, jobsPerQueue, Worker::Mode::Background);
     }
 
     spdlog::debug("Engine initialized");
 
     for(auto& worker : _workers)
     {
-        spdlog::debug("Starting worker {}...", worker.threadId());
+        spdlog::debug("Starting worker {}...", worker.id());
         worker.run();
     }
 }

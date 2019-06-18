@@ -70,12 +70,11 @@ std::size_t canvas::pixel_count() const
     return _width * _height;
 }
 
-void canvas::foreach(canvas::pixel_function function, const std::size_t threads)
+void canvas::foreach(canvas::pixel_function function, const void* constants, const std::size_t threads)
 {
     rt::jobs::Engine engine{threads, pixel_count()};
     const float      x_ratio      = 1.0f / _width;
     const float      y_ratio      = 1.0f / _height;
-    const float      aspect_ratio = static_cast<float>(_width) / _height;
 
     auto* worker = engine.threadWorker();
 
@@ -90,8 +89,8 @@ void canvas::foreach(canvas::pixel_function function, const std::size_t threads)
             const float y     = row * y_ratio;
 
             auto* pixelJob = worker->pool().createClosureJobAsChild(
-                [function, x, y, aspect_ratio, &pixel](rt::jobs::Job& job) {
-                    function(x, y, aspect_ratio, pixel);
+                [function, x, y, &pixel, constants](rt::jobs::Job& job) {
+                    function(x, y, constants, pixel);
                 },
                 root);
 
