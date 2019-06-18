@@ -21,9 +21,9 @@ struct settings
 
     [[
         rt::short_name("t"),
-        rt::description("Number of job engine parallel threads")
+        rt::description("Number of job engine parallel threads (default: all [hardware threads])")
     ]]
-    std::size_t threads = std::thread::hardware_concurrency();
+    std::string threads = "all";
 
     [[
         rt::short_name("l"),
@@ -48,6 +48,7 @@ struct settings
 
     void                     dump() const;
     std::vector<std::size_t> compute_jobs_per_thread() const;
+    std::size_t compute_threads() const;
 
 private:
     std::size_t compute_default_jobs_per_thread() const;

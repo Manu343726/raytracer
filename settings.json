@@ -1,0 +1,18 @@
+{
+    "log_level": "INFO",
+    "output_file": "output.ppm",
+
+    "threads": "all",
+    "jobs_per_thread": {
+        "thread-0": "100%"
+    },
+    "default_jobs_per_thread": "0%",
+
+    "kernel_constants": {
+        "iterations": 100,
+        "samples_per_pixel": 1,
+        "screen_width": 4096,
+        "screen_height": 2160,
+        "aspect_ratio": 1.896296
+    }
+}

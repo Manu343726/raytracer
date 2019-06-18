@@ -6,8 +6,10 @@ using namespace rt::runtime;
 
 void settings::dump() const
 {
+    const std::size_t computed_threads = compute_threads();
+
     spdlog::info("runtime settings:");
-    spdlog::info(" - worker threads: {}", threads);
+    spdlog::info(" - worker threads: {} ({})", threads, computed_threads);
     spdlog::info(" - output file: {}", output_file);
     spdlog::debug(
         " - default jobs per thread: {} ({})",
@@ -17,7 +19,7 @@ void settings::dump() const
 
     const auto computed_jobs_per_thread = compute_jobs_per_thread();
 
-    for(std::size_t i = 0; i < threads; ++i)
+    for(std::size_t i = 0; i < computed_threads; ++i)
     {
         auto it = jobs_per_thread.find(fmt::format("thread-{}", i));
 
@@ -65,38 +67,36 @@ std::size_t thread_id_from_string(const std::string& thread_id)
     }
 }
 
-std::size_t settings::compute_thread_jobs(
-    const std::string& config, const std::size_t default_jobs) const
+std::size_t parse_count_config(
+    const std::string& config, const std::size_t all, const std::size_t default_value)
 {
     if(config == "all")
     {
-        return total_jobs();
+        return all;
     }
-    else if(config == "default")
+    else if(config == "default_value")
     {
-        return default_jobs;
+        return default_value;
     }
     else if(config.find_last_of('%') == (config.size() - 1))
     {
         const auto percent_str = config.substr(0, config.size() - 1);
         const auto percent     = std::atoll(percent_str.c_str());
-        const auto max_jobs = (default_jobs > 0 ? default_jobs : total_jobs());
-        const auto jobs = static_cast<std::size_t>(max_jobs * percent / 100.0f);
+        const auto max_value_ = (default_value > 0 ? default_value : all);
+        const auto result = static_cast<std::size_t>(max_value_ * percent / 100.0f);
 
-        spdlog::debug(
-            "parsing percent thread jobs \"{}\": {} ({}) percent ({} jobs up to {})",
-            config,
-            percent_str,
-            percent,
-            jobs,
-            max_jobs);
-
-        return jobs;
+        return result;
     }
     else
     {
         return static_cast<std::size_t>(std::atoll(config.c_str()));
     }
+}
+
+std::size_t settings::compute_thread_jobs(
+    const std::string& config, const std::size_t default_jobs) const
+{
+    return parse_count_config(config, total_jobs(), default_jobs);
 }
 
 std::size_t settings::compute_thread_jobs(const std::string& config) const
@@ -111,13 +111,13 @@ std::size_t settings::compute_default_jobs_per_thread() const
 
 std::vector<std::size_t> settings::compute_jobs_per_thread() const
 {
-    std::vector<std::size_t> result(threads, compute_default_jobs_per_thread());
+    std::vector<std::size_t> result(compute_threads(), compute_default_jobs_per_thread());
 
     for(const auto& [key, value] : jobs_per_thread)
     {
         const std::size_t thread_id = thread_id_from_string(key);
 
-        if(thread_id < threads)
+        if(thread_id < compute_threads())
         {
             result[thread_id] = compute_thread_jobs(value);
         }
@@ -136,4 +136,12 @@ std::vector<std::size_t> settings::compute_jobs_per_thread() const
 std::size_t settings::total_jobs() const
 {
     return kernel_constants.screen_width * kernel_constants.screen_height;
+}
+
+std::size_t settings::compute_threads() const
+{
+    return parse_count_config(
+        threads,
+        std::thread::hardware_concurrency(),
+        std::thread::hardware_concurrency());
 }

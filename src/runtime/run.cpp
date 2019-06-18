@@ -58,7 +58,7 @@ void kernel_runner(const rt::runtime::settings& settings)
     canvas.foreach(
         ::kernel,
         settings.kernel_constants,
-        settings.threads,
+        settings.compute_threads(),
         settings.compute_jobs_per_thread());
     spdlog::info("Done. Saving rendering to file...");
 
@@ -106,12 +106,8 @@ int run(int argc, const char** argv)
             }
         }
 
-        if(args.count("log-level"))
-        {
-            configure_log_level(args["log-level"].as<std::string>());
-        }
-
         rt::runtime::apply_options(args, settings);
+        configure_log_level(settings.log_level);
 
         kernel_runner(settings);
 
