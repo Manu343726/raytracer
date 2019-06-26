@@ -8,8 +8,10 @@
 #include <raytracer/kernel.hpp>
 #include <raytracer/runtime/options_parser.hpp>
 #include <raytracer/runtime/settings.hpp>
+#include <raytracer/scene.hpp>
 #include <raytracer/kernel.hpp.tinyrefl>
 #include <raytracer/runtime/settings.hpp.tinyrefl>
+#include <raytracer/scene.hpp.tinyrefl>
 
 #include <fstream>
 

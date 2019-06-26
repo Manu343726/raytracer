@@ -52,13 +52,10 @@ cxxopts::Options
 template<typename Settings>
 void apply_options(const cxxopts::ParseResult& options, Settings& settings)
 {
-    tinyrefl::visit_class<Settings>(
-        [&](const auto& name,
-            const std::size_t /* depth */,
-            const auto& var,
-            TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
+    tinyrefl::visit<Settings>(
+        tinyrefl::member_variable_visitor([&](const auto& var) {
             detail::apply_option(options, settings, var);
-        });
+        }));
 }
 
 namespace detail
@@ -98,12 +95,11 @@ template<typename MemberVariable>
 void add_option(MemberVariable, cxxopts::Options& options)
 {
     constexpr MemberVariable var;
-    using value_type =
-        typename result_type<typename MemberVariable::value_type>::type;
+    using value_type = typename MemberVariable::value_type;
 
-    constexpr auto name        = option_name(var);
-    constexpr auto short_name  = option_short_name(var);
-    constexpr auto description = option_description(var);
+    const auto name        = option_name(var);
+    const auto short_name  = option_short_name(var);
+    const auto description = option_description(var);
 
     if constexpr(
         std::is_class_v<value_type> && tinyrefl::has_metadata<value_type>())
@@ -125,40 +121,65 @@ void add_option(MemberVariable, cxxopts::Options& options)
 template<typename Settings>
 void add_options(cxxopts::Options& options)
 {
-    tinyrefl::visit_class<Settings>(
-        [&](const auto& name,
-            const std::size_t /* depth */,
-            const auto& var,
-            TINYREFL_STATIC_VALUE(tinyrefl::entity::MEMBER_VARIABLE)) {
-            add_option(var, options);
-        });
-}
+    tinyrefl::visit<Settings>(tinyrefl::member_variable_visitor(
+        [&](const auto& var) { add_option(var, options); }));
+} // namespace detail
 
-template<typename MemberVariable>
-constexpr auto option_name(MemberVariable var)
+template<typename Entity>
+constexpr tinyrefl::entities::attribute*
+    find_attribute(Entity, const tinyrefl::string& name)
 {
-    if constexpr(
-        var.has_attribute("name") &&
-        var.get_attribute("name").namespace_.full_name() == "rt" &&
-        var.get_attribute("name").args.size() == 1)
+    const auto* ptr = tinyrefl::find(Entity().attributes(), name);
+
+    if(ptr == Entity().attribuites().end())
     {
-        return var.get_attribute("name").args[0].pad(1, 1);
+        return nullptr;
     }
     else
     {
-        return MemberVariable::name.name();
+        return ptr;
     }
 }
 
 template<typename MemberVariable>
-constexpr auto option_short_name(MemberVariable var)
+constexpr auto option_name(MemberVariable)
 {
-    if constexpr(
-        var.has_attribute("short_name") &&
-        var.get_attribute("short_name").namespace_.full_name() == "rt" &&
-        var.get_attribute("short_name").args.size() == 1)
+    constexpr MemberVariable var;
+
+    if(var.has_attribute("rt::name") &&
+       var.attribute("rt::name").arguments().size() == 1)
     {
-        return var.get_attribute("short_name").args[0].pad(1, 1);
+        return var.attribute("rt::name").arguments()[0].pad(1, 1);
+    }
+
+    return var.name();
+}
+
+template<typename MemberVariable>
+constexpr auto option_short_name(MemberVariable)
+{
+    constexpr MemberVariable var;
+
+    if(var.has_attribute("rt::short_name") &&
+       var.attribute("rt::short_name").arguments().size() == 1)
+    {
+        return var.attribute("rt::short_name").arguments()[0].pad(1, 1);
+    }
+    else
+    {
+        return tinyrefl::string{""};
+    }
+}
+
+template<typename MemberVariable>
+constexpr auto option_description(MemberVariable)
+{
+    constexpr MemberVariable var;
+
+    if(var.has_attribute("rt::description") &&
+       var.attribute("rt::description").arguments().size() == 1)
+    {
+        return var.attribute("rt::description").arguments()[0].pad(1, 1);
     }
     else
     {
@@ -166,21 +187,19 @@ constexpr auto option_short_name(MemberVariable var)
     }
 }
 
-template<typename MemberVariable>
-constexpr auto option_description(MemberVariable var)
+template<typename T, typename = void>
+struct is_copy_constructible : public std::is_copy_constructible<T>
 {
-    if constexpr(
-        var.has_attribute("description") &&
-        var.get_attribute("description").namespace_.full_name() == "rt" &&
-        var.get_attribute("description").args.size() == 1)
-    {
-        return var.get_attribute("description").args[0].pad(1, 1);
-    }
-    else
-    {
-        return ctti::detail::cstring{""};
-    }
-}
+};
+
+template<typename T>
+struct is_copy_constructible<
+    T,
+    std::void_t<decltype(
+        std::declval<T>().begin(), std::declval<typename T::value_type>())>>
+    : std::is_copy_constructible<typename T::value_type>
+{
+};
 
 template<typename Settings, typename MemberVariable>
 void apply_option(
@@ -188,8 +207,7 @@ void apply_option(
 {
     constexpr MemberVariable var;
     const std::string        name = option_name(var).str();
-    using value_type =
-        typename result_type<typename MemberVariable::value_type>::type;
+    using value_type              = typename MemberVariable::value_type;
 
     if constexpr(
         std::is_class_v<value_type> && tinyrefl::has_metadata<value_type>())
@@ -198,10 +216,12 @@ void apply_option(
     }
     else
     {
-
-        if(options.count(name))
+        if constexpr(is_copy_constructible<value_type>::value)
         {
-            var.get(settings) = options[name].as<value_type>();
+            if(options.count(name))
+            {
+                var.get(settings) = options[name].as<value_type>();
+            }
         }
     }
 }

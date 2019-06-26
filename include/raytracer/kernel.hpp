@@ -3,9 +3,11 @@
 
 #include <raytracer/math.hpp>
 #include <raytracer/ray.hpp>
+#include <raytracer/scene.hpp>
 #include <raytracer/sphere.hpp>
 #include <raytracer/vector.hpp>
 
+#include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
 namespace rt
@@ -45,6 +47,8 @@ struct kernel_constants
     [[rt::description(
         "Aspect ratio used by the renderer (default: width/height)")]]
     float aspect_ratio = 800.0f / 600.0f;
+
+    rt::scene scene;
 
     // clang-format on
 };

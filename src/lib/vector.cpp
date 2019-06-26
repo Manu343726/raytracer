@@ -1,5 +1,10 @@
+
 #include <cassert>
 #include <cmath>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <raytracer/math.hpp>
 #include <raytracer/vector.hpp>
 
@@ -147,6 +152,46 @@ color color::random_rgb()
 {
     return rgb(
         rt::random(0.0f, 1.0f), rt::random(0.0f, 1.0f), rt::random(0.0f, 1.0f));
+}
+
+void from_json(const tinyrefl::json& json, vector& vector)
+{
+    tinyrefl::json::const_iterator it;
+
+#define FROM_JSON_TRY_ASSIGN(key)                           \
+    bool TINYREFL_PP_CAT(contains_field_, key) = false;     \
+    it = json.find(TINYREFL_PP_STR(key));                   \
+                                                            \
+    if(it != json.end())                                    \
+    {                                                       \
+        vector.key                            = it.value(); \
+        TINYREFL_PP_CAT(contains_field_, key) = true;       \
+    }
+
+    FROM_JSON_TRY_ASSIGN(x)
+    FROM_JSON_TRY_ASSIGN(y)
+    FROM_JSON_TRY_ASSIGN(z)
+
+    FROM_JSON_TRY_ASSIGN(r)
+    FROM_JSON_TRY_ASSIGN(g)
+    FROM_JSON_TRY_ASSIGN(b)
+
+    FROM_JSON_TRY_ASSIGN(h)
+    FROM_JSON_TRY_ASSIGN(s)
+    FROM_JSON_TRY_ASSIGN(v)
+
+#undef FROM_JSON_TRY_ASSIGN
+
+    if(contains_field_h && contains_field_s && contains_field_v)
+    {
+        vector = color::hsv(vector.h, vector.s, vector.v);
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, const vector& vector)
+{
+    fmt::print(os, "({}, {}, {})", vector.x, vector.y, vector.z);
+    return os;
 }
 
 bool operator==(const vector& lhs, const vector& rhs)

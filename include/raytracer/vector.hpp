@@ -1,6 +1,8 @@
 #ifndef RAYTRACER_VECTOR_HPP_INCLUDED
 #define RAYTRACER_VECTOR_HPP_INCLUDED
 
+#include <tinyrefl/api.hpp>
+
 namespace rt
 {
 
@@ -69,7 +71,11 @@ struct vector
     static color random_rgb();
 };
 
+void from_json(const tinyrefl::json& json, vector& v);
+
 using color = vector;
+
+std::ostream& operator<<(std::ostream& os, const vector& vector);
 
 bool operator==(const vector& lhs, const vector& rhs);
 bool operator!=(const vector& lhs, const vector& rhs);

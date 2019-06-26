@@ -26,7 +26,7 @@ void settings::dump() const
         if(it != jobs_per_thread.end())
         {
             spdlog::info(
-                "    thread {}: {} ({} jobs)",
+                "    thread {}: {} ({} job(s))",
                 i,
                 it->second,
                 computed_jobs_per_thread[i]);
@@ -34,7 +34,7 @@ void settings::dump() const
         else
         {
             spdlog::info(
-                "    thread {}: {} ({} jobs)",
+                "    thread {}: {} ({} job(s))",
                 i,
                 default_jobs_per_thread,
                 computed_jobs_per_thread[i]);
@@ -48,6 +48,29 @@ void settings::dump() const
     spdlog::info(" - screen width: {} pixels", kernel_constants.screen_width);
     spdlog::info(" - screen height: {} pixels", kernel_constants.screen_height);
     spdlog::info(" - aspect ratio: {}", kernel_constants.aspect_ratio);
+    spdlog::info(" - scene:");
+    spdlog::info("   - camera:");
+    spdlog::info(
+        "      - position: {}", kernel_constants.scene.camera.position());
+    spdlog::info(
+        "      - look at: {}", kernel_constants.scene.camera.look_at());
+    spdlog::info("      - up: {}", kernel_constants.scene.camera.up());
+    spdlog::info(
+        "      - viewport width: {}",
+        kernel_constants.scene.camera.viewport_width());
+    spdlog::info(
+        "      - viewport height: {}",
+        kernel_constants.scene.camera.viewport_height());
+    spdlog::info(
+        "      - field of view: {}", kernel_constants.scene.camera.fov());
+    spdlog::info(
+        "   - objects: {} object(s)", kernel_constants.scene.objects.size());
+
+    for(const auto& object : kernel_constants.scene.objects)
+    {
+        spdlog::info("     - {}", object->to_string());
+    }
+
     spdlog::info("");
 }
 
@@ -68,7 +91,9 @@ std::size_t thread_id_from_string(const std::string& thread_id)
 }
 
 std::size_t parse_count_config(
-    const std::string& config, const std::size_t all, const std::size_t default_value)
+    const std::string& config,
+    const std::size_t  all,
+    const std::size_t  default_value)
 {
     if(config == "all")
     {
@@ -82,8 +107,9 @@ std::size_t parse_count_config(
     {
         const auto percent_str = config.substr(0, config.size() - 1);
         const auto percent     = std::atoll(percent_str.c_str());
-        const auto max_value_ = (default_value > 0 ? default_value : all);
-        const auto result = static_cast<std::size_t>(max_value_ * percent / 100.0f);
+        const auto max_value_  = (default_value > 0 ? default_value : all);
+        const auto result =
+            static_cast<std::size_t>(max_value_ * percent / 100.0f);
 
         return result;
     }
@@ -111,7 +137,8 @@ std::size_t settings::compute_default_jobs_per_thread() const
 
 std::vector<std::size_t> settings::compute_jobs_per_thread() const
 {
-    std::vector<std::size_t> result(compute_threads(), compute_default_jobs_per_thread());
+    std::vector<std::size_t> result(
+        compute_threads(), compute_default_jobs_per_thread());
 
     for(const auto& [key, value] : jobs_per_thread)
     {

@@ -13,6 +13,24 @@
         "samples_per_pixel": 1,
         "screen_width": 4096,
         "screen_height": 2160,
-        "aspect_ratio": 1.896296
+        "aspect_ratio": 1.896296,
+
+        "scene": {
+            "camera": {
+                "position": {"x": 0.0, "y": 0.0, "z": -3000.0},
+                "look_at": {"x": 0.0, "y": 0.0, "z": -2000.0},
+                "up": {"x": 1.0, "y": 0.0, "z": 0.0},
+                "viewport_width": 2000.0,
+                "viewport_height": 2000.0,
+                "fov": 1.0
+            },
+
+            "objects": [
+                {"type": "rt::sphere", "args": {
+                    "center": {"x": 0.0, "y": 0.0, "z": 0.0},
+                    "radious": 1000.0
+                }}
+            ]
+        }
     }
 }
