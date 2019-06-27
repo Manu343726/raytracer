@@ -7,7 +7,6 @@ add_library(raytracer-lib
     scene.cpp
     sphere.cpp
     camera.cpp
-    reflection/factory.cpp
 )
 
 target_link_libraries(raytracer-lib

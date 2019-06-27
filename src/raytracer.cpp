@@ -15,8 +15,8 @@ void kernel(
         eye_to_pixel.origin(),
         eye_to_pixel.direction());
 
-    if(constants.scene.hit(eye_to_pixel, -10000.0f, 10000.0f, hit_record))
+    if(constants.scene.hit(eye_to_pixel, hit_record))
     {
-        pixel = hit_record.normal;
+        pixel = (hit_record.normal + vector{1.0f, 1.0f, 1.0f}) * 0.5f;
     }
 }

@@ -19,6 +19,8 @@ struct scene : public rt::hitable
             const float     min_t,
             const float     max_t,
             rt::hit_record& hit) const override;
+
+    using hitable::hit;
 };
 
 void from_json(const tinyrefl::json& json, scene& scene);

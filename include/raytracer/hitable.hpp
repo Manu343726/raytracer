@@ -28,6 +28,8 @@ struct hitable
             const float    max_t,
             hit_record&    hit) const = 0;
 
+    bool hit(const rt::ray& ray, hit_record& hit) const;
+
     virtual std::string to_string() const;
 };
 
