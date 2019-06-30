@@ -5,13 +5,13 @@
 #include <tinyrefl/api.hpp>
 
 #include <raytracer/canvas.hpp>
+#include <raytracer/hitables/scene.hpp>
 #include <raytracer/kernel.hpp>
 #include <raytracer/runtime/options_parser.hpp>
 #include <raytracer/runtime/settings.hpp>
-#include <raytracer/scene.hpp>
+#include <raytracer/hitables/scene.hpp.tinyrefl>
 #include <raytracer/kernel.hpp.tinyrefl>
 #include <raytracer/runtime/settings.hpp.tinyrefl>
-#include <raytracer/scene.hpp.tinyrefl>
 
 #include <fstream>
 
@@ -109,6 +109,49 @@ int run(int argc, const char** argv)
         }
 
         rt::runtime::apply_options(args, settings);
+
+        if(settings.canvas_follows_screen_resolution)
+        {
+            settings.kernel_constants.scene.camera.set_viewport_size(
+                settings.kernel_constants.screen_width,
+                settings.kernel_constants.screen_height);
+        }
+        else
+        {
+            if(settings.kernel_constants.screen_width !=
+                   settings.kernel_constants.scene.camera.viewport_width() ||
+               settings.kernel_constants.screen_height !=
+                   settings.kernel_constants.scene.camera.viewport_height())
+            {
+                spdlog::warn(
+                    "Renderer screen configured with {}x{} resolution but camera was configured with {}x{} resolution, beware of potential aspect ratio or scaling issues",
+                    settings.kernel_constants.screen_width,
+                    settings.kernel_constants.screen_height,
+                    settings.kernel_constants.scene.camera.viewport_width(),
+                    settings.kernel_constants.scene.camera.viewport_height());
+            }
+        }
+
+        const float default_aspect_ratio =
+            static_cast<float>(settings.kernel_constants.screen_width) /
+            settings.kernel_constants.screen_height;
+
+        if(!settings.use_custom_aspect_ratio)
+        {
+            settings.kernel_constants.aspect_ratio = default_aspect_ratio;
+        }
+        else if(rt::float_not_equal(
+                    settings.kernel_constants.aspect_ratio,
+                    default_aspect_ratio))
+        {
+            spdlog::warn(
+                "Custom aspect ratio {} is not the correct aspect ratio ({}) for {}x{} resolution",
+                settings.kernel_constants.aspect_ratio,
+                default_aspect_ratio,
+                settings.kernel_constants.screen_width,
+                settings.kernel_constants.screen_height);
+        }
+
         configure_log_level(settings.log_level);
 
         kernel_runner(settings);

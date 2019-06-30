@@ -3,9 +3,6 @@
 
 #include <tinyrefl/api.hpp>
 
-#include <raytracer/reflection/from_json.hpp>
-#include <raytracer/utils.hpp>
-
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
@@ -14,9 +11,18 @@
 
 // include all types that should be supported by the factory
 #include <raytracer/camera.hpp>
-#include <raytracer/sphere.hpp>
+#include <raytracer/hitables/sphere.hpp>
+#include <raytracer/material.hpp>
+#include <raytracer/materials/lambertian.hpp>
+#include <raytracer/materials/metal.hpp>
 #include <raytracer/camera.hpp.tinyrefl>
-#include <raytracer/sphere.hpp.tinyrefl>
+#include <raytracer/hitables/sphere.hpp.tinyrefl>
+#include <raytracer/material.hpp.tinyrefl>
+#include <raytracer/materials/lambertian.hpp.tinyrefl>
+#include <raytracer/materials/metal.hpp.tinyrefl>
+
+#include <raytracer/reflection/from_json.hpp>
+#include <raytracer/utils.hpp>
 
 namespace rt
 {

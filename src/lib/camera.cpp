@@ -14,16 +14,18 @@ camera::camera(
     const float       viewport_width,
     const float       viewport_height,
     const float       fov)
-    : _position{position},
-      _look_at{look_at},
-      _up{up},
-      _bottom_left_corner{look_at.x - (viewport_width * 0.5f),
-                          look_at.y - (viewport_height * 0.5f),
-                          look_at.z},
-      _viewport_width{viewport_width},
-      _viewport_height{viewport_height},
-      _fov{fov}
+    : _position{position}, _look_at{look_at}, _up{up}, _fov{fov}
 {
+    set_viewport_size(viewport_width, viewport_height);
+}
+
+void camera::set_viewport_size(const float width, const float height)
+{
+    _bottom_left_corner = vector{
+        _look_at.x - (width * 0.5f), _look_at.y - (height * 0.5f), _look_at.z};
+
+    _viewport_width  = width;
+    _viewport_height = height;
 }
 
 rt::ray camera::ray(const float u, const float v) const

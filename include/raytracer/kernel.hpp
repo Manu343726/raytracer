@@ -1,14 +1,16 @@
 #ifndef RAYTRACER_KERNEL_HPP_INCLUDED
 #define RAYTRACER_KERNEL_HPP_INCLUDED
 
+#include <raytracer/hitables/scene.hpp>
+#include <raytracer/material.hpp>
 #include <raytracer/math.hpp>
 #include <raytracer/ray.hpp>
-#include <raytracer/scene.hpp>
-#include <raytracer/sphere.hpp>
 #include <raytracer/vector.hpp>
 
 #include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
+
+#include <cfloat>
 
 namespace rt
 {
@@ -48,7 +50,7 @@ struct kernel_constants
         "Aspect ratio used by the renderer (default: width/height)")]]
     float aspect_ratio = 800.0f / 600.0f;
 
-    rt::scene scene;
+    rt::hitables::scene scene;
 
     // clang-format on
 };

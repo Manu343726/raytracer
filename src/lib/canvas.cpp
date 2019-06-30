@@ -6,6 +6,7 @@
 
 #include <raytracer/canvas.hpp>
 #include <raytracer/jobs/engine.hpp>
+#include <raytracer/math.hpp>
 
 using namespace rt;
 
@@ -75,7 +76,7 @@ std::size_t canvas::pixel_count() const
 
 void canvas::foreach(
     canvas::pixel_function          function,
-    const void*                     constants,
+    const rt::kernel_constants&     constants,
     const std::size_t               threads,
     const std::vector<std::size_t>& jobsPerThread)
 {
@@ -92,13 +93,23 @@ void canvas::foreach(
     {
         for(std::size_t column = 0; column < _width; ++column)
         {
-            auto&       pixel = this->pixel(row, column);
-            const float x     = column * x_ratio;
-            const float y     = row * y_ratio;
+            auto& pixel = this->pixel(row, column);
 
             auto* pixelJob = worker->pool().createClosureJobAsChild(
-                [function, x, y, &pixel, constants](rt::jobs::Job& job) {
-                    function(x, y, constants, pixel);
+                [function, row, column, x_ratio, y_ratio, &pixel, &constants](
+                    rt::jobs::Job& job) {
+                    for(std::size_t i = 0; i < constants.samples_per_pixel; ++i)
+                    {
+                        const float x = (column + rt::random()) * x_ratio;
+                        const float y = 1.0f - (row + rt::random()) * y_ratio;
+                        color       local_pixel = color::rgb(0.0f, 0.0f, 0.0f);
+
+                        function(x, y, constants, local_pixel);
+
+                        pixel += local_pixel;
+                    }
+
+                    pixel /= constants.samples_per_pixel;
                 },
                 root);
 

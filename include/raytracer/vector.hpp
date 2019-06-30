@@ -82,7 +82,8 @@ bool operator!=(const vector& lhs, const vector& rhs);
 
 vector operator+(const vector& lhs, const vector& rhs);
 vector operator-(const vector& lhs, const vector& rhs);
-float  operator*(const vector& lhs, const vector& rhs);
+vector operator*(const vector& lhs, const vector& rhs);
+float  dot_product(const vector& lhs, const vector& rhs);
 vector operator*(const float lhs, const vector& rhs);
 vector operator*(const vector& lhs, const float rhs);
 vector operator/(const vector& lhs, const float rhs);

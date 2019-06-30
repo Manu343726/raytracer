@@ -1,5 +1,5 @@
-#ifndef RAYTRACER_SCENE_HPP_INCLUDED
-#define RAYTRACER_SCENE_HPP_INCLUDED
+#ifndef RAYTRACER_HITABLES_SCENE_HPP_INCLUDED
+#define RAYTRACER_HITABLES_SCENE_HPP_INCLUDED
 
 #include <raytracer/camera.hpp>
 #include <raytracer/hitable.hpp>
@@ -7,6 +7,9 @@
 #include <tinyrefl/api.hpp>
 
 namespace rt
+{
+
+namespace hitables
 {
 
 struct scene : public rt::hitable
@@ -25,6 +28,7 @@ struct scene : public rt::hitable
 
 void from_json(const tinyrefl::json& json, scene& scene);
 
+} // namespace hitables
 } // namespace rt
 
-#endif // RAYTRACER_SCENE_HPP_INCLUDED
+#endif // RAYTRACER_HITABLES_SCENE_HPP_INCLUDED

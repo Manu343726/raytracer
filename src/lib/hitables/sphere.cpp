@@ -1,19 +1,26 @@
-#include <raytracer/sphere.hpp>
+#include <raytracer/hitables/sphere.hpp>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
 using namespace rt;
+using namespace rt::hitables;
 
-sphere::sphere(const vector& center, const float radious)
-    : _center{center}, _radious{radious}
+sphere::sphere(
+    const vector&                 center,
+    const float                   radious,
+    std::unique_ptr<rt::material> material)
+    : _center{center}, _radious{radious}, _material{std::move(material)}
 {
 }
 
 std::string sphere::to_string() const
 {
     return fmt::format(
-        "rt::sphere{{center: {}, radious: {}}}", _center, _radious);
+        "rt::sphere{{center: {}, radious: {}, material: {}}}",
+        _center,
+        _radious,
+        _material->to_string());
 }
 
 const vector& sphere::center() const
@@ -30,14 +37,15 @@ std::optional<float> sphere::hit(const ray& ray) const
 {
     vector origin_center = ray.origin() - _center;
 
-    const float a = ray.direction() * ray.direction();
-    const float b = 2.0f * (origin_center * ray.direction());
-    const float c = (origin_center * origin_center) - (_radious * _radious);
+    const float a = rt::dot_product(ray.direction(), ray.direction());
+    const float b = 2.0f * rt::dot_product(origin_center, ray.direction());
+    const float c =
+        rt::dot_product(origin_center, origin_center) - (_radious * _radious);
     const float discriminant = b * b - 4.0f * a * c;
 
-    if(discriminant > 0.0f)
+    if(discriminant >= 0.0f)
     {
-        return std::make_optional(-b * std::sqrt(discriminant) * 0.5f / a);
+        return std::make_optional((-b - std::sqrt(discriminant)) / (2.0f * a));
     }
     else
     {
@@ -66,8 +74,9 @@ bool sphere::hit(
 
     if(t && min_t <= t && t <= max_t)
     {
-        hit.point  = ray.point(t.value());
-        hit.normal = (hit.point - _center).normalized();
+        hit.point    = ray.point(t.value());
+        hit.normal   = (hit.point - _center).normalized();
+        hit.material = _material.get();
 
         return true;
     }

@@ -29,6 +29,8 @@ struct camera
     float             viewport_height() const;
     float             fov() const;
 
+    void set_viewport_size(const float width, const float height);
+
 private:
     rt::vector _position;
     rt::vector _look_at;

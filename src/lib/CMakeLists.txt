@@ -3,10 +3,13 @@ add_library(raytracer-lib
     vector.cpp
     canvas.cpp
     ray.cpp
-    hitable.cpp
-    scene.cpp
-    sphere.cpp
     camera.cpp
+    hitable.cpp
+    hitables/scene.cpp
+    hitables/sphere.cpp
+    material.cpp
+    materials/lambertian.cpp
+    materials/metal.cpp
 )
 
 target_link_libraries(raytracer-lib
@@ -17,7 +20,10 @@ target_link_libraries(raytracer-lib
 find_package(tinyrefl_tool REQUIRED)
 tinyrefl_tool(TARGET raytracer-lib HEADERS
     "${RAYTRACER_INCLUDE_DIR}/raytracer/kernel.hpp"
-    "${RAYTRACER_INCLUDE_DIR}/raytracer/sphere.hpp"
-    "${RAYTRACER_INCLUDE_DIR}/raytracer/scene.hpp"
     "${RAYTRACER_INCLUDE_DIR}/raytracer/camera.hpp"
+    "${RAYTRACER_INCLUDE_DIR}/raytracer/hitables/sphere.hpp"
+    "${RAYTRACER_INCLUDE_DIR}/raytracer/hitables/scene.hpp"
+    "${RAYTRACER_INCLUDE_DIR}/raytracer/material.hpp"
+    "${RAYTRACER_INCLUDE_DIR}/raytracer/materials/lambertian.hpp"
+    "${RAYTRACER_INCLUDE_DIR}/raytracer/materials/metal.hpp"
     LOG_LEVEL TRACE)

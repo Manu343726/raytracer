@@ -12,6 +12,40 @@ namespace rt
 namespace reflection
 {
 
+template<typename Interface>
+std::unique_ptr<Interface>
+    factory(const std::string& type, const tinyrefl::json& args);
+
+namespace
+{
+
+template<typename T>
+struct is_unique_ptr : std::false_type
+{
+};
+
+template<typename T, typename Deleter>
+struct is_unique_ptr<std::unique_ptr<T, Deleter>> : std::true_type
+{
+};
+
+template<typename T, typename = void>
+struct element_type_extractor
+{
+    using type = T;
+};
+
+template<typename T>
+struct element_type_extractor<T, std::void_t<typename T::element_type>>
+{
+    using type = typename T::element_type;
+};
+
+template<typename T>
+using element_type = typename element_type_extractor<T>::type;
+
+} // namespace
+
 template<typename T>
 std::unique_ptr<T> from_json(const tinyrefl::json& json)
 {
@@ -54,9 +88,21 @@ std::unique_ptr<T> from_json(const tinyrefl::json& json)
                     return;
                 }
 
-                ctor_arg =
-                    tinyrefl::from_json<std::decay_t<decltype(ctor_arg)>>(
-                        it.value());
+                using ctor_arg_type = std::decay_t<decltype(ctor_arg)>;
+
+                if constexpr(
+                    is_unique_ptr<ctor_arg_type>() &&
+                    tinyrefl::has_metadata<element_type<ctor_arg_type>>())
+                {
+                    ctor_arg =
+                        rt::reflection::factory<element_type<ctor_arg_type>>(
+                            it.value()["type"], it.value()["args"]);
+                }
+                else
+                {
+                    static_assert(!is_unique_ptr<ctor_arg_type>());
+                    ctor_arg = tinyrefl::from_json<ctor_arg_type>(it.value());
+                }
             });
 
             if(overload_matches)
@@ -66,7 +112,7 @@ std::unique_ptr<T> from_json(const tinyrefl::json& json)
                         result = std::make_unique<T>(
                             std::forward<decltype(args)>(args)...);
                     },
-                    ctor_args);
+                    std::move(ctor_args));
             }
         }));
 

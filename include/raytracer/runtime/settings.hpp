@@ -44,11 +44,23 @@ struct settings
         "Default thread job pool size (default: all)")]]
     std::string default_jobs_per_thread = "all";
 
+    [[
+      rt::name("canvas-follows-screen-resolution"),
+      rt::description("Camera canvas config is overrided and follows screen width and height config")
+    ]]
+    bool canvas_follows_screen_resolution = true;
+
+    [[
+      rt::name("use-custom-aspect-ratio"),
+      rt::description("Do not compute aspect ratio automatically but follow user config")
+    ]]
+    bool use_custom_aspect_ratio = false;
+
     // clang-format on
 
     void                     dump() const;
     std::vector<std::size_t> compute_jobs_per_thread() const;
-    std::size_t compute_threads() const;
+    std::size_t              compute_threads() const;
 
 private:
     std::size_t compute_default_jobs_per_thread() const;

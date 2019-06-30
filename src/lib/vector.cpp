@@ -154,6 +154,19 @@ color color::random_rgb()
         rt::random(0.0f, 1.0f), rt::random(0.0f, 1.0f), rt::random(0.0f, 1.0f));
 }
 
+vector vector::spheric_random()
+{
+    vector v;
+
+    do
+    {
+        v = 2.0f * vector{rt::random(), rt::random(), rt::random()} -
+            vector{1.0f, 1.0f, 1.0f};
+    } while(v.square_length() >= 1.0f);
+
+    return v;
+}
+
 void from_json(const tinyrefl::json& json, vector& vector)
 {
     tinyrefl::json::const_iterator it;
@@ -215,7 +228,12 @@ vector operator-(const vector& lhs, const vector& rhs)
     return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
 }
 
-float operator*(const vector& lhs, const vector& rhs)
+vector operator*(const vector& lhs, const vector& rhs)
+{
+    return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z};
+}
+
+float dot_product(const vector& lhs, const vector& rhs)
 {
     return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z);
 }
@@ -265,7 +283,7 @@ vector reflect(const vector& v, const vector& axis)
     assert(
         axis.is_normalized() && "Cannot reflect on non-normalized axis vector");
 
-    return 2.0f * (axis * v) * axis - v;
+    return v - 2.0f * dot_product(v, axis) * axis;
 }
 
 } // namespace rt

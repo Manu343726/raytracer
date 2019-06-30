@@ -9,6 +9,7 @@ namespace rt
 class ray
 {
 public:
+    ray() = default;
     ray(const rt::vector& origin, const rt::vector& direction);
 
     const rt::vector& origin() const;

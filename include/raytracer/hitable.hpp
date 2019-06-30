@@ -11,11 +11,14 @@
 namespace rt
 {
 
+struct material;
+
 struct hit_record
 {
-    float      t;
-    rt::vector point;
-    rt::vector normal;
+    float               t;
+    rt::vector          point;
+    rt::vector          normal;
+    const rt::material* material;
 };
 
 struct hitable

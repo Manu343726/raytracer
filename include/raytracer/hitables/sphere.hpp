@@ -1,7 +1,8 @@
-#ifndef RAYTRACER_SPHERE_HPP_INCLUDED
-#define RAYTRACER_SPHERE_HPP_INCLUDED
+#ifndef RAYTRACER_HITABLES_SPHERE_HPP_INCLUDED
+#define RAYTRACER_HITABLES_SPHERE_HPP_INCLUDED
 
 #include <raytracer/hitable.hpp>
+#include <raytracer/material.hpp>
 #include <raytracer/ray.hpp>
 #include <raytracer/vector.hpp>
 
@@ -10,10 +11,16 @@
 namespace rt
 {
 
+namespace hitables
+{
+
 class sphere : public rt::hitable
 {
 public:
-    sphere(const rt::vector& center, const float radious);
+    sphere(
+        const rt::vector&             center,
+        const float                   radious,
+        std::unique_ptr<rt::material> material);
 
     const rt::vector& center() const;
     float             radious() const;
@@ -30,10 +37,12 @@ public:
     std::string to_string() const override;
 
 private:
-    rt::vector _center;
-    float      _radious;
+    rt::vector                    _center;
+    float                         _radious;
+    std::unique_ptr<rt::material> _material;
 };
 
+} // namespace hitables
 } // namespace rt
 
-#endif // RAYTRACER_SPHERE_HPP_INCLUDED
+#endif // RAYTRACER_HITABLES_SPHERE_HPP_INCLUDED

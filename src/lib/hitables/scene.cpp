@@ -1,5 +1,5 @@
+#include <raytracer/hitables/scene.hpp>
 #include <raytracer/reflection/from_json.hpp>
-#include <raytracer/scene.hpp>
 
 #include <raytracer/camera.hpp>
 #include <raytracer/camera.hpp.tinyrefl>
@@ -7,6 +7,9 @@
 #include <spdlog/spdlog.h>
 
 namespace rt
+{
+
+namespace hitables
 {
 
 bool scene::hit(
@@ -55,4 +58,5 @@ void from_json(const tinyrefl::json& json, scene& scene)
     }
 }
 
+} // namespace hitables
 } // namespace rt
