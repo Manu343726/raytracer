@@ -13,7 +13,7 @@
 
     "kernel_constants": {
         "iterations": 100,
-        "samples_per_pixel": 1,
+        "samples_per_pixel": 100,
         "screen_width": 4096,
         "screen_height": 2160,
         "aspect_ratio": 1.896296,
@@ -46,7 +46,7 @@
                     "material": {
                         "type": "rt::materials::metal",
                         "args": {
-                            "albedo": {"r": 1.0, "g": 0.01, "b": 0.01},
+                            "albedo": {"r": 0.9, "g": 0.9, "b": 0.9},
                             "fuzziness": 0.3
                         }
                     }
@@ -57,7 +57,7 @@
                     "material": {
                         "type": "rt::materials::metal",
                         "args": {
-                            "albedo": {"r": 0.5, "g": 0.8, "b": 0.5},
+                            "albedo": {"r": 0.9, "g": 0.9, "b": 0.9},
                             "fuzziness": 0.0
                         }
                     }
