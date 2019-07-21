@@ -10,6 +10,7 @@ add_library(raytracer-lib
     material.cpp
     materials/lambertian.cpp
     materials/metal.cpp
+    materials/dielectric.cpp
 )
 
 target_link_libraries(raytracer-lib
@@ -26,4 +27,5 @@ tinyrefl_tool(TARGET raytracer-lib HEADERS
     "${RAYTRACER_INCLUDE_DIR}/raytracer/material.hpp"
     "${RAYTRACER_INCLUDE_DIR}/raytracer/materials/lambertian.hpp"
     "${RAYTRACER_INCLUDE_DIR}/raytracer/materials/metal.hpp"
+    "${RAYTRACER_INCLUDE_DIR}/raytracer/materials/dielectric.hpp"
     LOG_LEVEL TRACE)

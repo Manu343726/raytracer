@@ -77,6 +77,11 @@ vector& vector::operator/=(const float value)
     return *this;
 }
 
+vector vector::operator-() const
+{
+    return {-x, -y, -z};
+}
+
 float vector::length() const
 {
     return std::sqrt(square_length());
@@ -284,6 +289,27 @@ vector reflect(const vector& v, const vector& axis)
         axis.is_normalized() && "Cannot reflect on non-normalized axis vector");
 
     return v - 2.0f * dot_product(v, axis) * axis;
+}
+
+std::optional<vector>
+    refract(const vector& v, const vector& normal, const float refraction_index)
+{
+    const vector nv = v.normalized();
+    const float  dt = dot_product(nv, normal);
+
+    const float discriminant =
+        1.0f - refraction_index * refraction_index * (1.0f - dt * dt);
+
+    if(discriminant > 0.0f)
+    {
+        return std::make_optional(
+            refraction_index * (nv - normal * dt) -
+            normal * std::sqrt(discriminant));
+    }
+    else
+    {
+        return std::nullopt;
+    }
 }
 
 } // namespace rt

@@ -33,10 +33,9 @@
                     "center": {"x": -1100.0, "y": 0.0, "z": 0.0},
                     "radious": 500.0,
                     "material": {
-                        "type": "rt::materials::metal",
+                        "type": "rt::materials::dielectric",
                         "args": {
-                            "albedo": {"r": 0.9, "g": 0.9, "b": 0.9},
-                            "fuzziness": 0.0
+                            "refraction_index": 1.5
                         }
                     }
                 }},

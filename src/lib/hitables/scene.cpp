@@ -18,15 +18,22 @@ bool scene::hit(
     const float     max_t,
     rt::hit_record& hit) const
 {
+    float closest_so_far = max_t;
+    bool  hit_anything   = false;
+
     for(const auto& object : objects)
     {
-        if(object->hit(ray, min_t, max_t, hit))
+        hit_record tmp_hit;
+
+        if(object->hit(ray, min_t, closest_so_far, tmp_hit))
         {
-            return true;
+            closest_so_far = tmp_hit.t;
+            hit            = tmp_hit;
+            hit_anything   = true;
         }
     }
 
-    return false;
+    return hit_anything;
 }
 
 void from_json(const tinyrefl::json& json, scene& scene)

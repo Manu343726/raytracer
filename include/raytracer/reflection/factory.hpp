@@ -13,11 +13,13 @@
 #include <raytracer/camera.hpp>
 #include <raytracer/hitables/sphere.hpp>
 #include <raytracer/material.hpp>
+#include <raytracer/materials/dielectric.hpp>
 #include <raytracer/materials/lambertian.hpp>
 #include <raytracer/materials/metal.hpp>
 #include <raytracer/camera.hpp.tinyrefl>
 #include <raytracer/hitables/sphere.hpp.tinyrefl>
 #include <raytracer/material.hpp.tinyrefl>
+#include <raytracer/materials/dielectric.hpp.tinyrefl>
 #include <raytracer/materials/lambertian.hpp.tinyrefl>
 #include <raytracer/materials/metal.hpp.tinyrefl>
 
