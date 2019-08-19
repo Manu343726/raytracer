@@ -27,6 +27,12 @@ bool scene::hit(
 
         if(object->hit(ray, min_t, closest_so_far, tmp_hit))
         {
+            if(tmp_hit.t < 0.0f)
+            {
+                spdlog::warn("scene::hit() negative hit t ({}, min: {}, max: {})",
+                    tmp_hit.t, min_t, closest_so_far);
+            }
+
             closest_so_far = tmp_hit.t;
             hit            = tmp_hit;
             hit_anything   = true;
@@ -34,6 +40,33 @@ bool scene::hit(
     }
 
     return hit_anything;
+}
+
+vector scene::center() const
+{
+    vector result{0.0f, 0.0f, 0.0f};
+
+    for(const auto& object : objects)
+    {
+        result += object->center();
+    }
+
+    result /= objects.size();
+
+    return result;
+}
+
+float scene::radious() const
+{
+    float result = 0.0f;
+    const vector center = this->center();
+
+    for(const auto& object : objects)
+    {
+        result = std::max(result, (object->center() - center).length() - object->radious());
+    }
+
+    return result;
 }
 
 void from_json(const tinyrefl::json& json, scene& scene)

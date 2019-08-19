@@ -110,28 +110,6 @@ int run(int argc, const char** argv)
 
         rt::runtime::apply_options(args, settings);
 
-        if(settings.canvas_follows_screen_resolution)
-        {
-            settings.kernel_constants.scene.camera.set_viewport_size(
-                settings.kernel_constants.screen_width,
-                settings.kernel_constants.screen_height);
-        }
-        else
-        {
-            if(settings.kernel_constants.screen_width !=
-                   settings.kernel_constants.scene.camera.viewport_width() ||
-               settings.kernel_constants.screen_height !=
-                   settings.kernel_constants.scene.camera.viewport_height())
-            {
-                spdlog::warn(
-                    "Renderer screen configured with {}x{} resolution but camera was configured with {}x{} resolution, beware of potential aspect ratio or scaling issues",
-                    settings.kernel_constants.screen_width,
-                    settings.kernel_constants.screen_height,
-                    settings.kernel_constants.scene.camera.viewport_width(),
-                    settings.kernel_constants.scene.camera.viewport_height());
-            }
-        }
-
         const float default_aspect_ratio =
             static_cast<float>(settings.kernel_constants.screen_width) /
             settings.kernel_constants.screen_height;
@@ -150,6 +128,23 @@ int run(int argc, const char** argv)
                 default_aspect_ratio,
                 settings.kernel_constants.screen_width,
                 settings.kernel_constants.screen_height);
+        }
+
+        if(settings.canvas_follows_screen_resolution)
+        {
+            settings.kernel_constants.scene.camera.set_aspect_ratio(
+                settings.kernel_constants.aspect_ratio);
+        }
+        else
+        {
+            if(settings.kernel_constants.aspect_ratio !=
+                   settings.kernel_constants.scene.camera.aspect_ratio())
+            {
+                spdlog::warn(
+                    "Renderer screen configured with aspect ratio {} but camera was configured with {} aspect ratio, beware of potential aspect ratio or scaling issues",
+                    settings.kernel_constants.aspect_ratio,
+                    settings.kernel_constants.scene.camera.aspect_ratio());
+            }
         }
 
         configure_log_level(settings.log_level);

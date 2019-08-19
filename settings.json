@@ -17,57 +17,115 @@
         "screen_width": 4096,
         "screen_height": 2160,
         "aspect_ratio": 1.896296,
+        "min_hit_range": 0.001,
+        "max_hit_range": 1.0E100,
 
         "scene": {
             "camera": {
-                "position": {"x": 0.0, "y": 800.0, "z": 5000.0},
-                "look_at": {"x": 0.0, "y": 0.0, "z": 1000.0},
-                "up": {"x": 1.0, "y": 0.0, "z": 0.0},
-                "viewport_width": 4096.0,
-                "viewport_height": 2160.0,
-                "fov": 1.0
+                "position": {"x": 0.0, "y": 2.0, "z": 3.0},
+                "look_at": {"x": 0.0, "y": 0.0, "z": 0.0},
+                "up": {"x": 0.0, "y": 1.0, "z": 0.0},
+                "fov": 57.3,
+                "aspect_ratio": 1.896296
             },
 
             "objects": [
                 {"type": "rt::hitables::sphere", "args": {
-                    "center": {"x": -1100.0, "y": 0.0, "z": 0.0},
-                    "radious": 500.0,
+                    "center": {"x": 0.0, "y": -100.5, "z": -1.0},
+                    "radious": 100.0,
                     "material": {
-                        "type": "rt::materials::dielectric",
+                        "type": "rt::materials::lambertian",
                         "args": {
-                            "refraction_index": 1.5
+                            "albedo": {"r": 0.8, "g": 0.8, "b": 0.8},
+                            "emissive": {"r": 0.0, "g": 0.0, "b": 0.0}
                         }
                     }
                 }},
                 {"type": "rt::hitables::sphere", "args": {
-                    "center": {"x": 0.0, "y": 0.0, "z": 0.0},
-                    "radious": 500.0,
+                    "center": {"x": 2.0, "y": 0.0, "z": -1.0},
+                    "radious": 0.5,
                     "material": {
-                        "type": "rt::materials::metal",
+                        "type": "rt::materials::lambertian",
                         "args": {
-                            "albedo": {"r": 0.9, "g": 0.9, "b": 0.9},
-                            "fuzziness": 0.3
+                            "albedo": {"r": 0.8, "g": 0.4, "b": 0.4},
+                            "emissive": {"r": 0.0, "g": 0.0, "b": 0.0}
                         }
                     }
                 }},
                 {"type": "rt::hitables::sphere", "args": {
-                    "center": {"x": 1100.0, "y": 0.0, "z": 0.0},
-                    "radious": 500.0,
+                    "center": {"x": 0.0, "y": 0.0, "z": -1.0},
+                    "radious": 0.5,
+                    "material": {
+                        "type": "rt::materials::lambertian",
+                        "args": {
+                            "albedo": {"r": 0.4, "g": 0.8, "b": 0.4},
+                            "emissive": {"r": 0.0, "g": 0.0, "b": 0.0}
+                        }
+                    }
+                }},
+                {"type": "rt::hitables::sphere", "args": {
+                    "center": {"x": -2.0, "y": 0.0, "z": -1.0},
+                    "radious": 0.5,
                     "material": {
                         "type": "rt::materials::metal",
                         "args": {
-                            "albedo": {"r": 0.9, "g": 0.9, "b": 0.9},
+                            "albedo": {"r": 0.4, "g": 0.4, "b": 0.8},
                             "fuzziness": 0.0
                         }
                     }
                 }},
                 {"type": "rt::hitables::sphere", "args": {
-                    "center": {"x": 0.0, "y": -20500.0, "z": 0.0},
-                    "radious": 20000.0,
+                    "center": {"x": 2.0, "y": 0.0, "z": 1.0},
+                    "radious": 0.5,
+                    "material": {
+                        "type": "rt::materials::metal",
+                        "args": {
+                            "albedo": {"r": 0.4, "g": 0.8, "b": 0.4},
+                            "fuzziness": 0.0
+                        }
+                    }
+                }},
+                {"type": "rt::hitables::sphere", "args": {
+                    "center": {"x": 0.0, "y": 0.0, "z": 1.0},
+                    "radious": 0.5,
+                    "material": {
+                        "type": "rt::materials::metal",
+                        "args": {
+                            "albedo": {"r": 0.4, "g": 0.8, "b": 0.4},
+                            "fuzziness": 0.2
+                        }
+                    }
+                }},
+                {"type": "rt::hitables::sphere", "args": {
+                    "center": {"x": -2.0, "y": 0.0, "z": 1.0},
+                    "radious": 0.5,
+                    "material": {
+                        "type": "rt::materials::metal",
+                        "args": {
+                            "albedo": {"r": 0.4, "g": 0.8, "b": 0.4},
+                            "fuzziness": 0.6
+                        }
+                    }
+                }},
+                {"type": "rt::hitables::sphere", "args": {
+                    "center": {"x": 0.5, "y": 1.0, "z": 0.5},
+                    "radious": 0.5,
+                    "material": {
+                        "type": "rt::materials::dielectric",
+                        "args": {
+                            "albedo": {"r": 0.4, "g": 0.4, "b": 0.4},
+                            "refraction_index": 1.5
+                        }
+                    }
+                }},
+                {"type": "rt::hitables::sphere", "args": {
+                    "center": {"x": -1.5, "y": 1.5, "z": 0.0},
+                    "radious": 0.3,
                     "material": {
                         "type": "rt::materials::lambertian",
                         "args": {
-                            "albedo": {"r": 1.0, "g": 1.0, "b": 0.5}
+                            "albedo": {"r": 1.0, "g": 1.0, "b": 1.0},
+                            "emissive": {"r": 30000000.0, "g": 25000000.0, "b": 150000000.0}
                         }
                     }
                 }}

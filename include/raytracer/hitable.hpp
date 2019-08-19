@@ -12,13 +12,15 @@ namespace rt
 {
 
 struct material;
+struct hitable;
 
 struct hit_record
 {
     float               t;
     rt::vector          point;
     rt::vector          normal;
-    const rt::material* material;
+    const rt::material* material = nullptr;
+    const rt::hitable*  object   = nullptr;
 };
 
 struct hitable
@@ -32,6 +34,9 @@ struct hitable
             hit_record&    hit) const = 0;
 
     bool hit(const rt::ray& ray, hit_record& hit) const;
+
+    virtual rt::vector center() const = 0;
+    virtual float radious() const = 0;
 
     virtual std::string to_string() const;
 };

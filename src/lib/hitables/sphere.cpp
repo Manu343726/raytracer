@@ -23,7 +23,7 @@ std::string sphere::to_string() const
         _material->to_string());
 }
 
-const vector& sphere::center() const
+vector sphere::center() const
 {
     return _center;
 }
@@ -77,6 +77,8 @@ bool sphere::hit(
         hit.point    = ray.point(t.value());
         hit.normal   = (hit.point - _center).normalized();
         hit.material = _material.get();
+        hit.t        = t.value();
+        hit.object   = this;
 
         return true;
     }

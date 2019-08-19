@@ -121,8 +121,11 @@ void canvas::foreach(
     worker->wait(root);
 
     const auto elapsed = std::chrono::high_resolution_clock::now() - start;
+    const auto elapsed_s = std::chrono::duration_cast<std::chrono::seconds>(elapsed);
+    const auto rays_s = pixel_count() * constants.samples_per_pixel / elapsed_s.count();
 
     spdlog::info(
-        "elapsed time: {} ms",
-        std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count());
+        "elapsed time: {} ms ({} rays/s)",
+        std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count(),
+        rays_s);
 }

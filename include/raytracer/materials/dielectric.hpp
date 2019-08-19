@@ -2,6 +2,7 @@
 #define RAYTRACER_MATERIALS_DIELECTRIC_HPP_INCLUDED
 
 #include <raytracer/material.hpp>
+#include <raytracer/vector.hpp>
 
 namespace rt
 {
@@ -11,7 +12,7 @@ namespace materials
 
 struct dielectric : rt::material
 {
-    dielectric(const float refraction_index);
+    dielectric(const float refraction_index, const rt::vector& albedo);
 
     bool scatter(
         const rt::ray&        in,
@@ -23,6 +24,7 @@ struct dielectric : rt::material
 
 private:
     float _refraction_index;
+    rt::vector _albedo;
 };
 
 } // namespace materials

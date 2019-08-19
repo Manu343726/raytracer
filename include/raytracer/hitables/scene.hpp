@@ -23,6 +23,9 @@ struct scene : public rt::hitable
             const float     max_t,
             rt::hit_record& hit) const override;
 
+    rt::vector center() const override;
+    float radious() const override;
+
     using hitable::hit;
 };
 

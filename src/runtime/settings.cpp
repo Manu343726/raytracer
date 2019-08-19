@@ -56,11 +56,8 @@ void settings::dump() const
         "      - look at: {}", kernel_constants.scene.camera.look_at());
     spdlog::info("      - up: {}", kernel_constants.scene.camera.up());
     spdlog::info(
-        "      - viewport width: {}",
-        kernel_constants.scene.camera.viewport_width());
-    spdlog::info(
-        "      - viewport height: {}",
-        kernel_constants.scene.camera.viewport_height());
+        "      - aspect_ratio: {}",
+        kernel_constants.scene.camera.aspect_ratio());
     spdlog::info(
         "      - field of view: {}", kernel_constants.scene.camera.fov());
     spdlog::info(

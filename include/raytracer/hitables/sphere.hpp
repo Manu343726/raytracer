@@ -22,8 +22,8 @@ public:
         const float                   radious,
         std::unique_ptr<rt::material> material);
 
-    const rt::vector& center() const;
-    float             radious() const;
+    rt::vector center() const override;
+    float             radious() const override;
 
     std::optional<float>      hit(const rt::ray& ray) const;
     std::optional<rt::vector> hit_point(const rt::ray& ray) const;

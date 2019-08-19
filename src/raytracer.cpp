@@ -1,22 +1,59 @@
 
-color trace(const ray& ray, const hitable& world, std::size_t depth_left)
+color probe_lights(const rt::ray& ray, const rt::hit_record& hit_record, const kernel_constants& constants)
+{
+    auto result = color::rgb(0.0f, 0.0f, 0.0f);
+
+    for(const auto& light : constants.scene.objects)
+    {
+        rt::hit_record light_hit_record;
+
+        // Sample light by randomly tracing a ray from the input
+        // hit towards the light object
+        const rt::ray light_ray{hit_record.point, rt::vector::hemispheric_random((light->center() - hit_record.point).normalized())};
+
+        if(constants.scene.hit(light_ray, constants.min_hit_range, constants.max_hit_range, light_hit_record) &&
+           light.get() == light_hit_record.object)
+        {
+            const float maxCos = std::sqrt(1.0f - light->radious()*light->radious() / (hit_record.point - light->center()).square_length());
+            const float omega = 2.0f * (1.0f - maxCos);
+            const vector normal = dot_product(light_hit_record.normal, ray.direction()) < 0.0f ?
+                 light_hit_record.normal :
+                -light_hit_record.normal;
+
+            result +=
+                light_hit_record.material->emitted() *
+                light_hit_record.material->albedo() *
+                std::max(0.0f, dot_product(light_ray.direction(), normal)) * omega;
+        }
+    }
+
+    if(result != color::rgb(0.0f, 0.0f, 0.0f))
+    {
+        spdlog::debug("probe_lights(): {}", result);
+    }
+
+    return result;
+}
+
+color trace(const ray& ray, const kernel_constants& constants, std::size_t depth_left)
 {
     rt::hit_record hit_record;
 
-    if(world.hit(ray, 0.0f, FLT_MAX, hit_record))
+    if(constants.scene.hit(ray, constants.min_hit_range, constants.max_hit_range, hit_record))
     {
         rt::ray     scattered;
         vector      attenuation;
         const auto* material = hit_record.material;
+        const auto emitted = material->emitted();
 
         if(depth_left > 0 &&
            material->scatter(ray, hit_record, attenuation, scattered))
         {
-            return attenuation * trace(scattered, world, depth_left - 1);
+            return material->emitted() + probe_lights(ray, hit_record, constants) + attenuation * trace(scattered, constants, depth_left - 1);
         }
         else
         {
-            return color::rgb(0.0f, 0.0f, 0.0f);
+            return material->emitted();
         }
     }
     else
@@ -25,8 +62,8 @@ color trace(const ray& ray, const hitable& world, std::size_t depth_left)
 
         const float t = 0.5f * (unit_direction.y + 1.0f);
 
-        return (1.0f - t) * color::rgb(1.0f, 1.0f, 1.0f) +
-               t * color::rgb(0.5f, 0.7f, 1.0f);
+        return ((1.0f - t) * color::rgb(1.0f, 1.0f, 1.0f) +
+               t * color::rgb(0.5f, 0.7f, 1.0f)) * 0.3f;
     }
 }
 
@@ -38,5 +75,9 @@ void kernel(
 {
     rt::ray eye_to_pixel = constants.scene.camera.ray(x, y);
 
-    pixel = trace(eye_to_pixel, constants.scene, constants.iterations);
+    pixel = rt::clamp(
+        trace(eye_to_pixel, constants, constants.iterations),
+        color::rgb(0.0f, 0.0f, 0.0f),
+        color::rgb(1.0f, 1.0f, 1.0f));
+
 }

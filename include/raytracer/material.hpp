@@ -21,6 +21,9 @@ struct material
         rt::vector&           attenuation,
         rt::ray&              scattered) const = 0;
 
+    virtual rt::color emitted() const;
+    virtual rt::color albedo() const;
+
     virtual std::string to_string() const;
 };
 

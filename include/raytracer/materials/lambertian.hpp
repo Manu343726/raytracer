@@ -11,7 +11,7 @@ namespace materials
 
 struct lambertian : rt::material
 {
-    lambertian(const rt::vector& albedo);
+    lambertian(const rt::vector& albedo, const rt::vector& emissive);
 
     bool scatter(
         const rt::ray&        in,
@@ -19,10 +19,13 @@ struct lambertian : rt::material
         rt::vector&           attenuation,
         rt::ray&              scattered) const override;
 
+    rt::color emitted() const;
+
     std::string to_string() const override;
 
 private:
     rt::vector _albedo;
+    rt::vector _emissive;
 };
 
 } // namespace materials

@@ -20,6 +20,16 @@ struct kernel_constants
     // clang-format off
 
     [[
+        rt::description("Min hit range (default: 0.00001f)")
+    ]]
+    float min_hit_range = 0.00001f;
+
+    [[
+        rt::description("Max hit range (default: 0.00001f)")
+    ]]
+    float max_hit_range = FLT_MAX;
+
+    [[
         rt::short_name("i"),
         rt::description("Number of iterations (default: 1)")
     ]]

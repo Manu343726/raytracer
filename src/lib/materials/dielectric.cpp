@@ -2,7 +2,10 @@
 #include <raytracer/materials/dielectric.hpp>
 #include <raytracer/math.hpp>
 
+
+#include <fmt/ostream.h>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 using namespace rt;
 using namespace rt::materials;
@@ -14,8 +17,8 @@ float schlick(const float cosine, const float refraction_index)
     return r0 + (1.0f - r0) * std::pow(1.0f - cosine, 5.0f);
 }
 
-dielectric::dielectric(const float refraction_index)
-    : _refraction_index{refraction_index}
+dielectric::dielectric(const float refraction_index, const vector& albedo)
+    : _refraction_index{refraction_index}, _albedo{albedo}
 {
 }
 
@@ -25,7 +28,7 @@ bool dielectric::scatter(
     rt::vector&           attenuation,
     rt::ray&              scattered) const
 {
-    attenuation = vector{1.0f, 1.0f, 1.0f};
+    attenuation = _albedo;
 
     float  cosine;
     vector outward_normal;
@@ -60,11 +63,11 @@ bool dielectric::scatter(
 
     if(rt::random() < reflected_ray_probability)
     {
-        scattered = rt::ray(in.origin(), reflect(in.direction(), hit.normal));
+        scattered = rt::ray(hit.point, reflect(in.direction(), hit.normal));
     }
     else
     {
-        scattered = rt::ray(in.origin(), refracted.value());
+        scattered = rt::ray(hit.point, refracted.value());
     }
 
     return true;

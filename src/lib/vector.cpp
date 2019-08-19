@@ -172,6 +172,11 @@ vector vector::spheric_random()
     return v;
 }
 
+vector vector::hemispheric_random(const vector& v)
+{
+    return (v + spheric_random()).normalized();
+}
+
 void from_json(const tinyrefl::json& json, vector& vector)
 {
     tinyrefl::json::const_iterator it;
@@ -243,6 +248,15 @@ float dot_product(const vector& lhs, const vector& rhs)
     return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z);
 }
 
+vector cross_product(const vector& lhs, const vector& rhs)
+{
+    return {
+          lhs.y * rhs.z - lhs.z * rhs.y,
+        -(lhs.x * rhs.z - lhs.z * rhs.x),
+          lhs.x * rhs.y - lhs.y * rhs.x
+    };
+}
+
 vector operator*(const float lhs, const vector& rhs)
 {
     return {rhs.x * lhs, rhs.y * lhs, rhs.z * lhs};
@@ -285,9 +299,6 @@ vector clamp(const vector& v, const vector& min, const vector& max)
 
 vector reflect(const vector& v, const vector& axis)
 {
-    assert(
-        axis.is_normalized() && "Cannot reflect on non-normalized axis vector");
-
     return v - 2.0f * dot_product(v, axis) * axis;
 }
 

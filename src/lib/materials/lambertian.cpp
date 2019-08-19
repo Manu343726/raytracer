@@ -7,7 +7,12 @@
 using namespace rt;
 using namespace rt::materials;
 
-lambertian::lambertian(const vector& albedo) : _albedo{albedo} {}
+lambertian::lambertian(
+    const vector& albedo,
+    const vector& emissive) :
+    _albedo{albedo},
+    _emissive{emissive}
+{}
 
 bool lambertian::scatter(
     const rt::ray&        in,
@@ -23,7 +28,12 @@ bool lambertian::scatter(
     return true;
 }
 
+color lambertian::emitted() const
+{
+    return _emissive;
+}
+
 std::string lambertian::to_string() const
 {
-    return fmt::format("rt::materials::lambertian{{albedo: {}}}", _albedo);
+    return fmt::format("rt::materials::lambertian{{albedo: {}, emitted: {}}}", _albedo, _emissive);
 }
