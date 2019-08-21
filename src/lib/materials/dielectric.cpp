@@ -17,9 +17,14 @@ float schlick(const float cosine, const float refraction_index)
     return r0 + (1.0f - r0) * std::pow(1.0f - cosine, 5.0f);
 }
 
-dielectric::dielectric(const float refraction_index, const vector& albedo)
-    : _refraction_index{refraction_index}, _albedo{albedo}
+dielectric::dielectric(const float refraction_index, const vector& albedo, const vector& emissive)
+    : _refraction_index{refraction_index}, _albedo{albedo}, _emissive{emissive}
 {
+}
+
+vector dielectric::emitted() const
+{
+    return _emissive;
 }
 
 bool dielectric::scatter(
@@ -40,13 +45,13 @@ bool dielectric::scatter(
     {
         outward_normal = -hit.normal;
         index          = _refraction_index;
-        cosine         = _refraction_index * dot / in.direction().length();
+        cosine         = _refraction_index * dot;
     }
     else
     {
         outward_normal = hit.normal;
         index          = 1.0f / _refraction_index;
-        cosine         = -dot / in.direction().length();
+        cosine         = -dot;
     }
 
     const auto refracted = refract(in.direction(), outward_normal, index);

@@ -2,6 +2,8 @@
 #define RAYTRACER_VECTOR_HPP_INCLUDED
 
 #include <optional>
+#include <cstdint>
+
 #include <tinyrefl/api.hpp>
 
 namespace rt
@@ -76,6 +78,8 @@ struct vector
 void from_json(const tinyrefl::json& json, vector& v);
 
 using color = vector;
+
+std::uint32_t linearToSRGB(const float channel);
 
 std::ostream& operator<<(std::ostream& os, const vector& vector);
 

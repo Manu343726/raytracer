@@ -12,7 +12,7 @@ namespace materials
 
 struct dielectric : rt::material
 {
-    dielectric(const float refraction_index, const rt::vector& albedo);
+    dielectric(const float refraction_index, const rt::vector& albedo, const rt::vector& emissive);
 
     bool scatter(
         const rt::ray&        in,
@@ -22,9 +22,12 @@ struct dielectric : rt::material
 
     std::string to_string() const override;
 
+    rt::vector emitted() const override;
+
 private:
     float _refraction_index;
     rt::vector _albedo;
+    rt::vector _emissive;
 };
 
 } // namespace materials

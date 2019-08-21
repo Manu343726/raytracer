@@ -50,9 +50,9 @@ void canvas::dump_to_file(const std::string& filename) const
             fmt::print(
                 os,
                 "{:>3} {:>3} {:>3} ",
-                static_cast<std::uint8_t>(255 * pixel.r),
-                static_cast<std::uint8_t>(255 * pixel.g),
-                static_cast<std::uint8_t>(255 * pixel.b));
+                rt::linearToSRGB(pixel.r),
+                rt::linearToSRGB(pixel.g),
+                rt::linearToSRGB(pixel.b));
         }
 
         fmt::print(os, "\n");

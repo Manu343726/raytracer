@@ -113,8 +113,9 @@
                     "material": {
                         "type": "rt::materials::dielectric",
                         "args": {
-                            "albedo": {"r": 0.4, "g": 0.4, "b": 0.4},
-                            "refraction_index": 1.5
+                            "albedo": {"r": 0.8, "g": 0.8, "b": 0.8},
+                            "emissive": {"r": 0.0, "g": 0.0, "b": 0.0},
+                            "refraction_index": 2.5
                         }
                     }
                 }},
@@ -125,7 +126,7 @@
                         "type": "rt::materials::lambertian",
                         "args": {
                             "albedo": {"r": 1.0, "g": 1.0, "b": 1.0},
-                            "emissive": {"r": 30000000.0, "g": 25000000.0, "b": 150000000.0}
+                            "emissive": {"r": 30.0, "g": 25.0, "b": 15.0}
                         }
                     }
                 }}

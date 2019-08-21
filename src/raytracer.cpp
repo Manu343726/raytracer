@@ -2,6 +2,7 @@
 color probe_lights(const rt::ray& ray, const rt::hit_record& hit_record, const kernel_constants& constants)
 {
     auto result = color::rgb(0.0f, 0.0f, 0.0f);
+    return result;
 
     for(const auto& light : constants.scene.objects)
     {
@@ -49,7 +50,9 @@ color trace(const ray& ray, const kernel_constants& constants, std::size_t depth
         if(depth_left > 0 &&
            material->scatter(ray, hit_record, attenuation, scattered))
         {
-            return material->emitted() + probe_lights(ray, hit_record, constants) + attenuation * trace(scattered, constants, depth_left - 1);
+            return material->emitted() +
+                   probe_lights(ray, hit_record, constants) +
+                   attenuation * trace(scattered, constants, depth_left - 1);
         }
         else
         {
@@ -75,9 +78,6 @@ void kernel(
 {
     rt::ray eye_to_pixel = constants.scene.camera.ray(x, y);
 
-    pixel = rt::clamp(
-        trace(eye_to_pixel, constants, constants.iterations),
-        color::rgb(0.0f, 0.0f, 0.0f),
-        color::rgb(1.0f, 1.0f, 1.0f));
+    pixel = trace(eye_to_pixel, constants, constants.iterations);
 
 }

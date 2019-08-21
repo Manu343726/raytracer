@@ -159,6 +159,15 @@ color color::random_rgb()
         rt::random(0.0f, 1.0f), rt::random(0.0f, 1.0f), rt::random(0.0f, 1.0f));
 }
 
+std::uint32_t linearToSRGB(const float channel)
+{
+    float x = std::max(0.0f, channel);
+
+    x = std::max(1.055f * std::pow(x, 0.416666667f) - 0.055f, 0.0f);
+
+    return std::min(static_cast<std::uint32_t>(x * 255.9f), 255u);
+}
+
 vector vector::spheric_random()
 {
     vector v;
