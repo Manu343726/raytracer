@@ -1,7 +1,8 @@
-#include <raytracer/math.hpp>
+#include "float.hpp"
 #include <algorithm>
 #include <random>
-#include "float.hpp"
+#include <raytracer/debug/profile.hpp>
+#include <raytracer/math.hpp>
 
 namespace rt
 {
@@ -24,10 +25,12 @@ bool float_not_equal(const float lhs, const float rhs)
 
 float random(const float min, const float max)
 {
-    static thread_local std::mt19937_64 prng{std::random_device{}()};
+    RT_PROFILE_FUNCTION();
+
+    static thread_local std::mt19937_64   prng{std::random_device{}()};
     std::uniform_real_distribution<float> dist{min, max};
 
     return dist(prng);
 }
 
-}
+} // namespace rt

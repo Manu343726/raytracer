@@ -1,6 +1,7 @@
 #ifndef RAYTRACER_KERNEL_HPP_INCLUDED
 #define RAYTRACER_KERNEL_HPP_INCLUDED
 
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/hitables/scene.hpp>
 #include <raytracer/material.hpp>
 #include <raytracer/math.hpp>

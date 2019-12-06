@@ -3,6 +3,7 @@
 #include <raytracer/camera.hpp.tinyrefl>
 
 #include <cmath>
+#include <raytracer/debug/profile.hpp>
 
 using namespace rt;
 
@@ -30,7 +31,7 @@ void camera::set_aspect_ratio(const float aspect_ratio)
     const auto u = rt::cross_product(_up, w).normalized();
     const auto v = rt::cross_product(w, u);
 
-    _bottom_left_corner = _position - half_width*u - half_height*v - w;
+    _bottom_left_corner = _position - half_width * u - half_height * v - w;
     _horizontal         = 2.0f * half_width * u;
     _vertical           = 2.0f * half_height * v;
     _aspect_ratio       = aspect_ratio;
@@ -38,9 +39,10 @@ void camera::set_aspect_ratio(const float aspect_ratio)
 
 rt::ray camera::ray(const float u, const float v) const
 {
+    RT_PROFILE_FUNCTION();
+
     return rt::ray::from_to(
-        _position,
-        _bottom_left_corner + u*_horizontal + v*_vertical);
+        _position, _bottom_left_corner + u * _horizontal + v * _vertical);
 }
 const rt::vector& camera::position() const
 {

@@ -1,3 +1,4 @@
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/hitable.hpp>
 #include <raytracer/reflection/factory.hpp>
 
@@ -8,6 +9,8 @@ namespace rt
 
 bool hitable::hit(const ray& ray, hit_record& hit) const
 {
+    RT_PROFILE_FUNCTION();
+
     return this->hit(
         ray,
         std::numeric_limits<float>::min(),

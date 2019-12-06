@@ -10,6 +10,7 @@ if(RAYTRACER_SANITIZER)
 endif()
 
 option(RAYTRACER_PROFILE "Build with profiling support" OFF)
+option(RAYTRACER_EASY_PROFILER "Build with easy_profiler traces enabled" OFF)
 
 if(RAYTRACER_PROFILE)
     message(STATUS "Raytracer built with profiling enabled")
@@ -29,6 +30,15 @@ if(EXISTS "${RAYTRACER_CONANBUILDINFO_FILE}")
     conan_basic_setup(TARGETS)
 else()
     message(WARNING "Conan build info file not found, make sure you have run conan install with the cmake generator")
+endif()
+
+if(RAYTRACER_EASY_PROFILER)
+    find_package(easy_profiler REQUIRED)
+
+    target_compile_definitions(raytracer-includes INTERFACE RAYTRACER_EASY_PROFILER)
+    target_link_libraries(raytracer-includes INTERFACE easy_profiler)
+
+    message(STATUS "easy_profiler tracing enabled")
 endif()
 
 add_subdirectory(src)

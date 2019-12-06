@@ -13,6 +13,8 @@
 #include <raytracer/kernel.hpp.tinyrefl>
 #include <raytracer/runtime/settings.hpp.tinyrefl>
 
+#include <raytracer/debug/profile.hpp>
+
 #include <fstream>
 
 using namespace rt::runtime;
@@ -74,10 +76,17 @@ int run(int argc, const char** argv)
     // clang-format off
     options.add_options()
         ("help", "Display this help and exit")
-        ("c,config-file", "Full path to the configuration JSON file", cxxopts::value<std::string>());
+        ("c,config-file", "Full path to the configuration JSON file", cxxopts::value<std::string>())
+#ifndef RAYTRACER_EASY_PROFILER
+        ;
+#else
+        ("profile-output", "easy_profiler recording output file", cxxopts::value<std::string>());
+#endif // RAYTRACER_EASY_PROFILER
     // clang-format on
 
-    const auto args = options.parse(argc, argv);
+
+    const auto  args                = options.parse(argc, argv);
+    std::string profile_output_file = "raytracer.prof";
 
     if(args.count("help"))
     {
@@ -86,6 +95,11 @@ int run(int argc, const char** argv)
     }
     else
     {
+        if(args.count("profile-output"))
+        {
+            profile_output_file = args["profile-output"].as<std::string>();
+        }
+
         rt::runtime::settings settings;
 
         if(args.count("config-file"))
@@ -138,7 +152,7 @@ int run(int argc, const char** argv)
         else
         {
             if(settings.kernel_constants.aspect_ratio !=
-                   settings.kernel_constants.scene.camera.aspect_ratio())
+               settings.kernel_constants.scene.camera.aspect_ratio())
             {
                 spdlog::warn(
                     "Renderer screen configured with aspect ratio {} but camera was configured with {} aspect ratio, beware of potential aspect ratio or scaling issues",
@@ -149,7 +163,9 @@ int run(int argc, const char** argv)
 
         configure_log_level(settings.log_level);
 
+        RT_PROFILE_START();
         kernel_runner(settings);
+        RT_PROFILE_SAVE_FILE(profile_output_file.c_str());
 
         return 0;
     }
