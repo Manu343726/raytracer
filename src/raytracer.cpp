@@ -4,6 +4,8 @@ color probe_lights(
     const rt::hit_record&   hit_record,
     const kernel_constants& constants)
 {
+    ZoneScoped;
+
     auto result = color::rgb(0.0f, 0.0f, 0.0f);
     return result;
 
@@ -54,7 +56,7 @@ color probe_lights(
 color trace(
     const ray& ray, const kernel_constants& constants, std::size_t depth_left)
 {
-    RT_PROFILE_FUNCTION();
+    ZoneScoped;
 
     rt::hit_record hit_record;
 
@@ -96,9 +98,7 @@ void kernel(
     const kernel_constants& constants,
     color&                  pixel)
 {
-    RT_PROFILE_FUNCTION();
-    RT_PROFILE_VALUE("u", x);
-    RT_PROFILE_VALUE("v", y);
+    ZoneScoped;
 
     rt::ray eye_to_pixel = constants.scene.camera.ray(x, y);
 

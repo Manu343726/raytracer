@@ -1,3 +1,4 @@
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/ray.hpp>
 
 using namespace rt;
@@ -19,10 +20,12 @@ const vector& ray::direction() const
 
 vector ray::point(const float t) const
 {
+    ZoneScoped;
     return _origin + _direction * t;
 }
 
 ray ray::from_to(const vector& from, const vector& to)
 {
+    ZoneScoped;
     return {from, (to - from).normalized()};
 }

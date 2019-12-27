@@ -1,10 +1,11 @@
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/hitable.hpp>
 #include <raytracer/materials/dielectric.hpp>
 #include <raytracer/math.hpp>
 
 
-#include <fmt/ostream.h>
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <spdlog/spdlog.h>
 
 using namespace rt;
@@ -12,12 +13,14 @@ using namespace rt::materials;
 
 float schlick(const float cosine, const float refraction_index)
 {
+    ZoneScoped;
     float r0 = (1.0f - refraction_index) / (1.0f + refraction_index);
     r0       = r0 * r0;
     return r0 + (1.0f - r0) * std::pow(1.0f - cosine, 5.0f);
 }
 
-dielectric::dielectric(const float refraction_index, const vector& albedo, const vector& emissive)
+dielectric::dielectric(
+    const float refraction_index, const vector& albedo, const vector& emissive)
     : _refraction_index{refraction_index}, _albedo{albedo}, _emissive{emissive}
 {
 }
@@ -33,6 +36,8 @@ bool dielectric::scatter(
     rt::vector&           attenuation,
     rt::ray&              scattered) const
 {
+    ZoneScoped;
+
     attenuation = _albedo;
 
     float  cosine;

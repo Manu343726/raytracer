@@ -9,7 +9,7 @@ namespace rt
 
 bool hitable::hit(const ray& ray, hit_record& hit) const
 {
-    RT_PROFILE_FUNCTION();
+    ZoneScoped;
 
     return this->hit(
         ray,

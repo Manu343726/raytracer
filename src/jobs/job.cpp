@@ -1,12 +1,9 @@
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/jobs/job.hpp>
 
 using namespace rt::jobs;
 
-Job::Job(JobFunction jobFunction, Job* parent) :
-    _payload{
-        jobFunction,
-        parent
-    }
+Job::Job(JobFunction jobFunction, Job* parent) : _payload{jobFunction, parent}
 {
     _payload.unfinishedChildrenJobs.store(1, std::memory_order_seq_cst);
 
@@ -18,6 +15,8 @@ Job::Job(JobFunction jobFunction, Job* parent) :
 
 bool Job::run()
 {
+    ZoneScoped;
+
     if(finished())
     {
         return false;
@@ -34,10 +33,11 @@ bool Job::run()
         // again as a callback with teardown work to run when the job is
         // marked as finished. To do so, the user reassigns the job function
         // by calling Job::whenFinished() in the body of the job function
-        // (When the job is run). We later check if the job function has changed,
-        // and mark a job with the same previous function, that is, a job with no
-        // custom whenFinished() callback assigned during run; as having null function
-        // Later, Job::finish() executes the function again only if not null
+        // (When the job is run). We later check if the job function has
+        // changed, and mark a job with the same previous function, that is, a
+        // job with no custom whenFinished() callback assigned during run; as
+        // having null function Later, Job::finish() executes the function again
+        // only if not null
         if(_payload.function == jobFunction)
         {
             _payload.function = nullptr;
@@ -61,7 +61,8 @@ void Job::incrementUnfinishedChildrenJobs()
 
 bool Job::decrementUnfinishedChildrenJobs()
 {
-    return _payload.unfinishedChildrenJobs.fetch_sub(1, std::memory_order_seq_cst) == 1;
+    return _payload.unfinishedChildrenJobs.fetch_sub(
+               1, std::memory_order_seq_cst) == 1;
 }
 
 std::int32_t Job::unfinishedChildrenJobs() const
@@ -76,6 +77,8 @@ Job* Job::parent() const
 
 void Job::finish()
 {
+    ZoneScoped;
+
     if(decrementUnfinishedChildrenJobs())
     {
         if(_payload.function != nullptr)

@@ -1,3 +1,4 @@
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/hitables/sphere.hpp>
 
 #include <fmt/format.h>
@@ -35,6 +36,7 @@ float sphere::radious() const
 
 std::optional<float> sphere::hit(const ray& ray) const
 {
+    ZoneScoped;
     vector origin_center = ray.origin() - _center;
 
     const float a = rt::dot_product(ray.direction(), ray.direction());
@@ -70,10 +72,14 @@ std::optional<vector> sphere::hit_point(const ray& ray) const
 bool sphere::hit(
     const ray& ray, const float min_t, const float max_t, hit_record& hit) const
 {
+    ZoneScoped;
+
     const auto t = this->hit(ray);
 
     if(t && min_t <= t && t <= max_t)
     {
+        ZoneNamedN(HitSuccess, "hit successful return data", true);
+
         hit.point    = ray.point(t.value());
         hit.normal   = (hit.point - _center).normalized();
         hit.material = _material.get();

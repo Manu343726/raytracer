@@ -1,3 +1,4 @@
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/hitable.hpp>
 #include <raytracer/materials/metal.hpp>
 
@@ -18,6 +19,8 @@ bool metal::scatter(
     rt::vector&           attenuation,
     rt::ray&              scattered) const
 {
+    ZoneScoped;
+
     scattered   = rt::ray{hit.point,
                         rt::reflect(in.direction().normalized(), hit.normal) +
                             _fuzziness * vector::spheric_random()};

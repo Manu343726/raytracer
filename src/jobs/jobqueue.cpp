@@ -1,4 +1,5 @@
 #include <cassert>
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/jobs/jobqueue.hpp>
 #include <spdlog/spdlog.h>
 
@@ -12,6 +13,8 @@ JobQueue::JobQueue(std::size_t maxJobs)
 bool JobQueue::push(Job* job)
 {
     assert(job != nullptr && "Tried to push null job to the work queue");
+
+    ZoneScoped;
 
     std::size_t bottom = _bottom.load(std::memory_order_acquire);
 
@@ -34,6 +37,8 @@ bool JobQueue::push(Job* job)
 
 Job* JobQueue::pop()
 {
+    ZoneScoped;
+
     std::size_t bottom = _bottom.load(std::memory_order_acquire);
 
     if(bottom > 0)
@@ -93,6 +98,8 @@ Job* JobQueue::pop()
 
 Job* JobQueue::steal()
 {
+    ZoneScoped;
+
     std::size_t top = _top.load(std::memory_order_acquire);
 
     // Put a barrier here to make sure bottom is read after reading

@@ -5,6 +5,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/math.hpp>
 #include <raytracer/vector.hpp>
 
@@ -43,6 +44,8 @@ float& vector::operator[](const channel channel)
 
 vector& vector::operator+=(const vector& other)
 {
+    ZoneScoped;
+
     x += other.x;
     y += other.y;
     z += other.z;
@@ -52,6 +55,8 @@ vector& vector::operator+=(const vector& other)
 
 vector& vector::operator-=(const vector& other)
 {
+    ZoneScoped;
+
     x -= other.x;
     y -= other.y;
     z -= other.z;
@@ -61,6 +66,8 @@ vector& vector::operator-=(const vector& other)
 
 vector& vector::operator*=(const float value)
 {
+    ZoneScoped;
+
     x *= value;
     y *= value;
     z *= value;
@@ -70,6 +77,8 @@ vector& vector::operator*=(const float value)
 
 vector& vector::operator/=(const float value)
 {
+    ZoneScoped;
+
     x /= value;
     y /= value;
     z /= value;
@@ -79,36 +88,50 @@ vector& vector::operator/=(const float value)
 
 vector vector::operator-() const
 {
+    ZoneScoped;
+
     return {-x, -y, -z};
 }
 
 float vector::length() const
 {
+    ZoneScoped;
+
     return std::sqrt(square_length());
 }
 
 float vector::square_length() const
 {
+    ZoneScoped;
+
     return x * x + y * y + z * z;
 }
 
 vector vector::normalized() const
 {
+    ZoneScoped;
+
     return *this / length();
 }
 
 bool vector::is_normalized() const
 {
+    ZoneScoped;
+
     return rt::float_equal(square_length(), 1.0f);
 }
 
 color color::rgb(const float r, const float g, const float b)
 {
+    ZoneScoped;
+
     return {r, g, b};
 }
 
 color color::hsv(const float h, const float s, const float v)
 {
+    ZoneScoped;
+
     if(s == 0.f)
     {
         return {v, v, v};
@@ -155,12 +178,16 @@ color color::hsv(const float h)
 
 color color::random_rgb()
 {
+    ZoneScoped;
+
     return rgb(
         rt::random(0.0f, 1.0f), rt::random(0.0f, 1.0f), rt::random(0.0f, 1.0f));
 }
 
 std::uint32_t linearToSRGB(const float channel)
 {
+    ZoneScoped;
+
     float x = std::max(0.0f, channel);
 
     x = std::max(1.055f * std::pow(x, 0.416666667f) - 0.055f, 0.0f);
@@ -170,10 +197,13 @@ std::uint32_t linearToSRGB(const float channel)
 
 vector vector::spheric_random()
 {
+    ZoneScoped;
+
     vector v;
 
     do
     {
+        ZoneNamedN(RandomVectorIteration, "random vector iteration", true);
         v = 2.0f * vector{rt::random(), rt::random(), rt::random()} -
             vector{1.0f, 1.0f, 1.0f};
     } while(v.square_length() >= 1.0f);
@@ -183,6 +213,8 @@ vector vector::spheric_random()
 
 vector vector::hemispheric_random(const vector& v)
 {
+    ZoneScoped;
+
     return (v + spheric_random()).normalized();
 }
 
@@ -228,62 +260,82 @@ std::ostream& operator<<(std::ostream& os, const vector& vector)
 
 bool operator==(const vector& lhs, const vector& rhs)
 {
+    ZoneScoped;
+
     return rt::float_equal(lhs.x, rhs.x) && rt::float_equal(lhs.y, rhs.y) &&
            rt::float_equal(lhs.z, rhs.z);
 }
 
 bool operator!=(const vector& lhs, const vector& rhs)
 {
+    ZoneScoped;
+
     return !(lhs == rhs);
 }
 
 vector operator+(const vector& lhs, const vector& rhs)
 {
+    ZoneScoped;
+
     return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
 }
 
 vector operator-(const vector& lhs, const vector& rhs)
 {
+    ZoneScoped;
+
     return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
 }
 
 vector operator*(const vector& lhs, const vector& rhs)
 {
+    ZoneScoped;
+
     return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z};
 }
 
 float dot_product(const vector& lhs, const vector& rhs)
 {
+    ZoneScoped;
+
     return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z);
 }
 
 vector cross_product(const vector& lhs, const vector& rhs)
 {
-    return {
-          lhs.y * rhs.z - lhs.z * rhs.y,
-        -(lhs.x * rhs.z - lhs.z * rhs.x),
-          lhs.x * rhs.y - lhs.y * rhs.x
-    };
+    ZoneScoped;
+
+    return {lhs.y * rhs.z - lhs.z * rhs.y,
+            -(lhs.x * rhs.z - lhs.z * rhs.x),
+            lhs.x * rhs.y - lhs.y * rhs.x};
 }
 
 vector operator*(const float lhs, const vector& rhs)
 {
+    ZoneScoped;
+
     return {rhs.x * lhs, rhs.y * lhs, rhs.z * lhs};
 }
 
 vector operator*(const vector& lhs, const float rhs)
 {
+    ZoneScoped;
+
     return rhs * lhs;
 }
 
 vector operator/(const vector& lhs, const float rhs)
 {
+    ZoneScoped;
+
     return {lhs.x / rhs, lhs.y / rhs, lhs.z / rhs};
 }
 
 vector clamp(
     vector vector, const vector::axis axis, const float min, const float max)
 {
+    ZoneScoped;
+
     vector[axis] = rt::clamp(vector[axis], min, max);
 
     return vector;
@@ -295,12 +347,16 @@ vector clamp(
     const float           min,
     const float           max)
 {
+    ZoneScoped;
+
     return rt::clamp(
         std::move(vector), static_cast<vector::axis>(channel), min, max);
 }
 
 vector clamp(const vector& v, const vector& min, const vector& max)
 {
+    ZoneScoped;
+
     return {rt::clamp(v.x, min.x, max.x),
             rt::clamp(v.y, min.y, max.y),
             rt::clamp(v.z, min.z, max.z)};
@@ -308,12 +364,16 @@ vector clamp(const vector& v, const vector& min, const vector& max)
 
 vector reflect(const vector& v, const vector& axis)
 {
+    ZoneScoped;
+
     return v - 2.0f * dot_product(v, axis) * axis;
 }
 
 std::optional<vector>
     refract(const vector& v, const vector& normal, const float refraction_index)
 {
+    ZoneScoped;
+
     const vector nv = v.normalized();
     const float  dt = dot_product(nv, normal);
 

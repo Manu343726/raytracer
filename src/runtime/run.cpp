@@ -163,12 +163,22 @@ int run(int argc, const char** argv)
 
         configure_log_level(settings.log_level);
 
-        RT_PROFILE_START();
         kernel_runner(settings);
-        RT_PROFILE_SAVE_FILE(profile_output_file.c_str());
-
         return 0;
     }
+}
+
+void* operator new(std::size_t size)
+{
+    void* ptr = std::malloc(size);
+    TracyAlloc(ptr, size);
+    return ptr;
+}
+
+void operator delete(void* ptr)
+{
+    TracyFree(ptr);
+    std::free(ptr);
 }
 
 int main(int argc, const char** argv)

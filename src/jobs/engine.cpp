@@ -1,5 +1,6 @@
 #include <fmt/ostream.h>
 #include <random>
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/jobs/engine.hpp>
 #include <spdlog/spdlog.h>
 
@@ -60,6 +61,8 @@ Engine::Engine(const std::size_t workerThreads, const std::size_t jobsPerThread)
 
 Worker* Engine::randomWorker()
 {
+    ZoneScoped;
+
     Worker* worker = &_workers[_dist(_randomEngine)];
 
     if(worker->running())
@@ -111,6 +114,8 @@ std::size_t Engine::totalJobsAllocated() const
 
 Worker* Engine::threadWorker()
 {
+    ZoneScoped;
+
     static thread_local Engine* engine = this;
     static thread_local Worker* worker =
         findThreadWorker(std::this_thread::get_id());

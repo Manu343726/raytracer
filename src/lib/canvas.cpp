@@ -80,13 +80,15 @@ void canvas::foreach(
     const std::size_t               threads,
     const std::vector<std::size_t>& jobsPerThread)
 {
-    RT_PROFILE_FUNCTION();
-    RT_PROFILE_BLOCK("Job engine initialization");
+    ZoneScoped;
+
+    TracyCZoneN(EngineInit, "Job engine initialization", true);
     rt::jobs::Engine engine{threads, jobsPerThread, pixel_count()};
-    RT_PROFILE_BLOCK_END();
+    TracyCZoneEnd(EngineInit);
     const auto  start   = std::chrono::high_resolution_clock::now();
     const float x_ratio = 1.0f / _width;
     const float y_ratio = 1.0f / _height;
+
 
     auto* worker = engine.threadWorker();
 
@@ -96,20 +98,18 @@ void canvas::foreach(
     {
         for(std::size_t column = 0; column < _width; ++column)
         {
-            RT_PROFILE_BLOCK("pixel job allocation");
+            ZoneNamedN(PixelJobAlloc, "pixel job allocation", true);
+
             auto& pixel = this->pixel(row, column);
 
             auto* pixelJob = worker->pool().createClosureJobAsChild(
                 [function, row, column, x_ratio, y_ratio, &pixel, &constants](
                     rt::jobs::Job& job) {
-                    RT_PROFILE_BLOCK("pixel job");
-                    RT_PROFILE_VALUE("row", row);
-                    RT_PROFILE_VALUE("column", column);
+                    ZoneNamedN(PixelJob, "pixel job", true);
 
                     for(std::size_t i = 0; i < constants.samples_per_pixel; ++i)
                     {
-                        RT_PROFILE_BLOCK("sample");
-                        RT_PROFILE_VALUE("sample", i);
+                        ZoneNamedN(Sample, "sample", true);
 
                         const float x = (column + rt::random()) * x_ratio;
                         const float y = 1.0f - (row + rt::random()) * y_ratio;
@@ -118,18 +118,13 @@ void canvas::foreach(
                         function(x, y, constants, local_pixel);
 
                         pixel += local_pixel;
-
-                        RT_PROFILE_BLOCK_END();
                     }
 
                     pixel /= constants.samples_per_pixel;
-
-                    RT_PROFILE_BLOCK_END();
                 },
                 root);
 
             worker->submit(pixelJob);
-            RT_PROFILE_BLOCK_END();
         }
     }
 

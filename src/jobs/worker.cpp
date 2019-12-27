@@ -1,4 +1,5 @@
 #include <fmt/ostream.h>
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/jobs/engine.hpp>
 #include <raytracer/jobs/worker.hpp>
 #include <spdlog/spdlog.h>
@@ -31,12 +32,16 @@ void Worker::run()
     }
 
     auto mainLoop = [this] {
+        ZoneNamed(MainLoop, true);
+
         _state = State::Running;
 
         spdlog::debug("Background worker {} started", id());
 
         while(running())
         {
+            ZoneNamed(WorkerStep, true);
+
             Job* job = getJob();
 
             if(job != nullptr)
@@ -72,6 +77,8 @@ void Worker::run()
 
 void Worker::stop()
 {
+    ZoneScoped;
+
     State expected = State::Running;
     while(!_state.compare_exchange_weak(expected, State::Stopping))
         ;
@@ -118,8 +125,12 @@ void Worker::submit(Job* job)
 
 void Worker::wait(Job* waitJob)
 {
+    ZoneScoped;
+
     while(!waitJob->finished())
     {
+        ZoneNamedN(WaitStep, "Job wait step", true);
+
         Job* job = getJob();
 
         if(job != nullptr)
@@ -149,6 +160,8 @@ const Pool& Worker::pool() const
 
 Job* Worker::getJob()
 {
+    ZoneScoped;
+
     Job* job = _workQueue.pop();
 
     if(job != nullptr)
@@ -157,13 +170,17 @@ Job* Worker::getJob()
     }
     else
     {
+        ZoneNamedN(JonStealing, "Job stealing", true);
+
         // Steal job from another worker
 
         Worker* worker = _engine->randomWorker();
 
         if(worker == this)
         {
+            TracyMessageL("worker yields");
             std::this_thread::yield();
+            TracyMessageL("worker woke up from yield");
             return nullptr;
         }
         else
@@ -178,7 +195,9 @@ Job* Worker::getJob()
             }
             else
             {
+                TracyMessageL("worker yields");
                 std::this_thread::yield();
+                TracyMessageL("worker woke up from yield");
                 return nullptr;
             }
         }

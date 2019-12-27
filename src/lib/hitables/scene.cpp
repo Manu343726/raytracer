@@ -1,3 +1,4 @@
+#include <raytracer/debug/profile.hpp>
 #include <raytracer/hitables/scene.hpp>
 #include <raytracer/reflection/from_json.hpp>
 
@@ -18,6 +19,8 @@ bool scene::hit(
     const float     max_t,
     rt::hit_record& hit) const
 {
+    ZoneScoped;
+
     float closest_so_far = max_t;
     bool  hit_anything   = false;
 
@@ -29,8 +32,11 @@ bool scene::hit(
         {
             if(tmp_hit.t < 0.0f)
             {
-                spdlog::warn("scene::hit() negative hit t ({}, min: {}, max: {})",
-                    tmp_hit.t, min_t, closest_so_far);
+                spdlog::warn(
+                    "scene::hit() negative hit t ({}, min: {}, max: {})",
+                    tmp_hit.t,
+                    min_t,
+                    closest_so_far);
             }
 
             closest_so_far = tmp_hit.t;
@@ -58,12 +64,13 @@ vector scene::center() const
 
 float scene::radious() const
 {
-    float result = 0.0f;
+    float        result = 0.0f;
     const vector center = this->center();
 
     for(const auto& object : objects)
     {
-        result = std::max(result, (object->center() - center).length() - object->radious());
+        result = std::max(
+            result, (object->center() - center).length() - object->radious());
     }
 
     return result;

@@ -39,11 +39,12 @@ void camera::set_aspect_ratio(const float aspect_ratio)
 
 rt::ray camera::ray(const float u, const float v) const
 {
-    RT_PROFILE_FUNCTION();
+    ZoneScoped;
 
     return rt::ray::from_to(
         _position, _bottom_left_corner + u * _horizontal + v * _vertical);
 }
+
 const rt::vector& camera::position() const
 {
     return _position;
