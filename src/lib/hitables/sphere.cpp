@@ -93,3 +93,9 @@ bool sphere::hit(
         return false;
     }
 }
+
+box sphere::bounding_box() const
+{
+    ZoneScoped;
+    return box::centered(_center, _radious);
+}

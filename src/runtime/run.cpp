@@ -58,7 +58,7 @@ void kernel_runner(const rt::runtime::settings& settings)
 
     settings.dump();
 
-    spdlog::info("Starting...");
+    spdlog::info("running...");
     canvas.foreach(
         ::kernel,
         settings.kernel_constants,

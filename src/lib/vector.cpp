@@ -42,6 +42,11 @@ float& vector::operator[](const channel channel)
     return coords[channel];
 }
 
+vector::axis vector::random_axis()
+{
+    return static_cast<axis>(rt::randomInt(axis::X, axis::Z));
+}
+
 vector& vector::operator+=(const vector& other)
 {
     ZoneScoped;
@@ -271,6 +276,30 @@ bool operator!=(const vector& lhs, const vector& rhs)
     ZoneScoped;
 
     return !(lhs == rhs);
+}
+
+bool operator>(const vector& lhs, const vector& rhs)
+{
+    ZoneScoped;
+
+    return lhs.x > rhs.x && lhs.y && rhs.y && lhs.z && rhs.z;
+}
+
+bool operator<(const vector& lhs, const vector& rhs)
+{
+    ZoneScoped;
+
+    return lhs.x < rhs.x && lhs.y && rhs.y && lhs.z && rhs.z;
+}
+
+bool operator>=(const vector& lhs, const vector& rhs)
+{
+    return !(lhs < rhs);
+}
+
+bool operator<=(const vector& lhs, const vector& rhs)
+{
+    return !(lhs > rhs);
 }
 
 vector operator+(const vector& lhs, const vector& rhs)

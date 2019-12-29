@@ -1,6 +1,7 @@
 #ifndef RAYTRACER_HITABLE_HPP
 #define RAYTRACER_HITABLE_HPP
 
+#include <raytracer/box.hpp>
 #include <raytracer/ray.hpp>
 #include <raytracer/vector.hpp>
 
@@ -35,8 +36,13 @@ struct hitable
 
     bool hit(const rt::ray& ray, hit_record& hit) const;
 
-    virtual rt::vector center() const = 0;
-    virtual float radious() const = 0;
+    virtual rt::box bounding_box() const = 0;
+
+    bool broad_hit(
+        const rt::ray& ray, const float min_t, const float max_t) const;
+
+    virtual rt::vector center() const;
+    virtual float      radious() const;
 
     virtual std::string to_string() const;
 };

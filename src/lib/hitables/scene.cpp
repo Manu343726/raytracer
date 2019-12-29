@@ -19,33 +19,20 @@ bool scene::hit(
     const float     max_t,
     rt::hit_record& hit) const
 {
-    ZoneScoped;
+    ZoneNamedN(SceneHit, "scene::hit", true);
 
-    float closest_so_far = max_t;
-    bool  hit_anything   = false;
+    bool result = kdtree->hit(ray, min_t, max_t, hit);
 
-    for(const auto& object : objects)
+    if(result)
     {
-        hit_record tmp_hit;
-
-        if(object->hit(ray, min_t, closest_so_far, tmp_hit))
-        {
-            if(tmp_hit.t < 0.0f)
-            {
-                spdlog::warn(
-                    "scene::hit() negative hit t ({}, min: {}, max: {})",
-                    tmp_hit.t,
-                    min_t,
-                    closest_so_far);
-            }
-
-            closest_so_far = tmp_hit.t;
-            hit            = tmp_hit;
-            hit_anything   = true;
-        }
+        TracyMessageL("Object hit");
+    }
+    else
+    {
+        TracyMessageL("All objects missed");
     }
 
-    return hit_anything;
+    return result;
 }
 
 vector scene::center() const
@@ -76,8 +63,26 @@ float scene::radious() const
     return result;
 }
 
+box scene::bounding_box() const
+{
+    ZoneScoped;
+
+    box result = box::nil();
+
+    for(const auto& object : objects)
+    {
+        result = rt::surrounding_box(result, object->bounding_box());
+    }
+
+    return result;
+}
+
 void from_json(const tinyrefl::json& json, scene& scene)
 {
+    ZoneNamedN(FromJson, "scene::from_json", true);
+
+    spdlog::info("Loading scene...");
+
     const auto& camera  = json["camera"];
     const auto& objects = json["objects"];
 
@@ -103,6 +108,11 @@ void from_json(const tinyrefl::json& json, scene& scene)
                 object.dump());
         }
     }
+
+    spdlog::info("Building kd-tree...");
+
+    scene.kdtree = std::make_unique<rt::hitables::kdtree>(
+        scene.objects.begin(), scene.objects.end());
 }
 
 } // namespace hitables

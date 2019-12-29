@@ -23,7 +23,7 @@ public:
         std::unique_ptr<rt::material> material);
 
     rt::vector center() const override;
-    float             radious() const override;
+    float      radious() const override;
 
     std::optional<float>      hit(const rt::ray& ray) const;
     std::optional<rt::vector> hit_point(const rt::ray& ray) const;
@@ -33,6 +33,8 @@ public:
             const float     min_t,
             const float     max_t,
             rt::hit_record& hit) const override;
+
+    rt::box bounding_box() const override;
 
     std::string to_string() const override;
 

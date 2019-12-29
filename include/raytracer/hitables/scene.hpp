@@ -3,6 +3,7 @@
 
 #include <raytracer/camera.hpp>
 #include <raytracer/hitable.hpp>
+#include <raytracer/hitables/kdtree.hpp>
 
 #include <tinyrefl/api.hpp>
 
@@ -14,8 +15,9 @@ namespace hitables
 
 struct scene : public rt::hitable
 {
-    rt::camera                                camera;
-    std::vector<std::unique_ptr<rt::hitable>> objects;
+    rt::camera                                                 camera;
+    std::vector<std::unique_ptr<rt::hitable>>                  objects;
+    [[tinyrefl::ignore]] std::unique_ptr<rt::hitables::kdtree> kdtree;
 
     bool
         hit(const rt::ray&  ray,
@@ -23,8 +25,10 @@ struct scene : public rt::hitable
             const float     max_t,
             rt::hit_record& hit) const override;
 
+    rt::box bounding_box() const override;
+
     rt::vector center() const override;
-    float radious() const override;
+    float      radious() const override;
 
     using hitable::hit;
 };

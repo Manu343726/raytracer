@@ -5,5 +5,6 @@ cxxopts/2.1.0@Manu343726/stable
 tinyrefl/0.5.2
 tinyrefl-tool/0.5.2
 tracy_client/master@Manu343726/testing
+range-v3/0.10.0@ericniebler/stable
 
 [options] tracy_client:TRACY_ENABLE=True

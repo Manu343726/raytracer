@@ -82,6 +82,8 @@ color trace(
     }
     else
     {
+        return color::rgb(1.0f, 0.0f, 0.0f);
+
         vector unit_direction = ray.direction().normalized();
 
         const float t = 0.5f * (unit_direction.y + 1.0f);

@@ -1,8 +1,8 @@
 #ifndef RAYTRACER_VECTOR_HPP_INCLUDED
 #define RAYTRACER_VECTOR_HPP_INCLUDED
 
-#include <optional>
 #include <cstdint>
+#include <optional>
 
 #include <tinyrefl/api.hpp>
 
@@ -33,6 +33,8 @@ struct vector
         Y,
         Z
     };
+
+    static axis random_axis();
 
     enum channel
     {
@@ -85,6 +87,10 @@ std::ostream& operator<<(std::ostream& os, const vector& vector);
 
 bool operator==(const vector& lhs, const vector& rhs);
 bool operator!=(const vector& lhs, const vector& rhs);
+bool operator>(const vector& lhs, const vector& rhs);
+bool operator<(const vector& lhs, const vector& rhs);
+bool operator>=(const vector& lhs, const vector& rhs);
+bool operator<=(const vector& lhs, const vector& rhs);
 
 vector operator+(const vector& lhs, const vector& rhs);
 vector operator-(const vector& lhs, const vector& rhs);
